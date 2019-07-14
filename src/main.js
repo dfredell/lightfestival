@@ -2,6 +2,7 @@ var CodeMirrorColorPicker = require('codemirror-colorpicker');
 var Timer = require('easytimer.js').Timer;
 var $ = require('jquery');
 const invert = require('invert-color');
+var admin = require("./admin.js")
 
 var picker;
 
@@ -21,6 +22,7 @@ window.onload = function () {
         setupPositionImage();
         setupTimer();
     }
+
 };
 
 function setupPicker() {

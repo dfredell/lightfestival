@@ -16,7 +16,10 @@
     "easytimer.js": "^3.2.0",
     "invert-color": "^2.0.0",
     "jquery": "^3.4.1",
-    "requirejs": "^2.3.6"
+    "querystring": "^0.2.0",
+    "request": "^2.88.0",
+    "requirejs": "^2.3.6",
+    "watchify": "^3.11.1"
   },
   "start": "node server.js",
   "devDependencies": {

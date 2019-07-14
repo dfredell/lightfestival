@@ -1,0 +1,24 @@
+<html>
+<head>
+
+
+
+    <script src="/target/bundle.js"></script>
+    <!--    No zoom on mobile -->
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'/>
+    <title>Invaders</title>
+</head>
+<body>
+
+<h1>Space invaders Admin page</h1>
+
+<form action="/rgbchannels" method="post" id="form-rgb-settings">
+    <p>RGB Fixture start channels</p>
+    <input type="text" id="rgbchannels" name="rgbchannels"/>
+    <p>Channel fade time</p>
+    <input type="text" id="fadetime" name="fadetime"/>
+    <br/>
+    <input id="submit-rgb-settings" type="submit"/>
+</form>
+</body>
+</html>
