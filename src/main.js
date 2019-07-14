@@ -29,6 +29,7 @@ function setupPicker() {
         container: document.getElementById('color-container'),
         type: 'macos',
         color: 'rgb(177,177,177)',
+        gradient: 'linear-gradient(to right, white 0%, green 100%)',
         // outputFormat: 'hex',
         hideDelay: 0,
         onHide: function (c) {

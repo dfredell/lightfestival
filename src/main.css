@@ -64,14 +64,18 @@ a.enter {
 #color-container .codemirror-colorpicker.macos .value {
     padding: 15px 16px;
     background-color: black;
-    margin: 0;
+    margin: 1em 0 0 0;
 }
 
 #color-container .codemirror-colorpicker {
     /*Remove box*/
     border: none;
     box-shadow: none;
-    width: 100%
+    width: 100%;
+    background-color: black;
+    /* height: 80%; */
+    /* height: 500px;
+    background-color: black; */
 }
 
 #color-container .codemirror-colorpicker .wheel {
@@ -83,6 +87,9 @@ a.enter {
 
 #color-container .codemirror-colorpicker .colorpicker-body > .control {
     padding: 0;
+    bottom: 0px;
+    /* position: absolute; */
+    /* width: 100%; */
 }
 
 #color-container .codemirror-colorpicker.macos .control > .color, .codemirror-colorpicker.macos .control > .empty {
@@ -95,6 +102,7 @@ a.enter {
 }
 #color-container .codemirror-colorpicker.macos .value > .value-container {
     height: 3em;
+    background-image: linear-gradient(to right, #aaaaaa 0%, rgba(255, 255, 255, 0) 100%);
 }
 #color-container .codemirror-colorpicker.macos .value > .value-container .drag-bar {
     width: 2em;
