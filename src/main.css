@@ -102,7 +102,7 @@ a.enter {
 }
 #color-container .codemirror-colorpicker.macos .value > .value-container {
     height: 3em;
-    background-image: linear-gradient(to right, #aaaaaa 0%, rgba(255, 255, 255, 0) 100%);
+    /*background-image: linear-gradient(to right, #aaaaaa 0%, rgba(255, 255, 255, 0) 100%);*/
 }
 #color-container .codemirror-colorpicker.macos .value > .value-container .drag-bar {
     width: 2em;
