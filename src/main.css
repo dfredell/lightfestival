@@ -1,0 +1,190 @@
+
+@font-face {
+    font-family: 'silombold';
+    src: url('SilomBol.ttf');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+p.timer {
+    float: right;
+    font-size: 2em;
+    margin: 0;
+}
+
+body {
+    font-family: 'silombold', sans-serif;
+    background-color: black;
+    color: white;
+    margin: 0;
+}
+
+h1.invaders-title {
+    color: white;
+    font-size: 5em;
+    padding-left: 10%;
+    padding-top: 10%;
+}
+
+div.enter-box {
+    padding-left: 10%;
+    padding-top: 10%;
+}
+
+a.enter {
+    color: black;
+    background-color: white;
+    font-size: 5em;
+    padding: 5px;
+    animation:blinkingText 0.8s infinite;
+}
+
+@keyframes blinkingText{
+    0%{		color: #000;	background-color: white;}
+    50%{	color: transparent;background-color: transparent;	}
+    100%{	color: #000;	background-color: white;}
+}
+/* Hide RGB numbers */
+#color-container .information {
+    display: none;
+}
+
+/* Hide pallet*/
+#color-container .colorsets {
+    display: none;
+}
+
+/* Hide pallet*/
+#color-container .opacity {
+    display: none;
+}
+
+/*Center color bar*/
+#color-container .codemirror-colorpicker.macos .value {
+    padding: 15px 16px;
+    background-color: black;
+    margin: 0;
+}
+
+#color-container .codemirror-colorpicker {
+    /*Remove box*/
+    border: none;
+    box-shadow: none;
+    width: 100%
+}
+
+#color-container .codemirror-colorpicker .wheel {
+    width: 100%;
+    padding-top: 100%; /* 1:1 Aspect Ratio */
+    background-color: black;
+}
+
+
+#color-container .codemirror-colorpicker .colorpicker-body > .control {
+    padding: 0;
+}
+
+#color-container .codemirror-colorpicker.macos .control > .color, .codemirror-colorpicker.macos .control > .empty {
+    display: none;
+}
+
+#color-container .codemirror-colorpicker .wheel .wheel-canvas {
+    width: 100%;
+    height: 100%;
+}
+#color-container .codemirror-colorpicker.macos .value > .value-container {
+    height: 3em;
+}
+#color-container .codemirror-colorpicker.macos .value > .value-container .drag-bar {
+    width: 2em;
+    border: 2px dashed white;
+    background-color: rgb(177,177,177);
+
+    /*make square*/
+    border-radius: 0;
+    height: 3em;
+}
+
+#color-container .codemirror-colorpicker.macos .colorpicker-body .wheel .drag-pointer {
+    width: 4em;
+    height: 4em;
+    border: 1px solid white;
+    background-color: rgb(177,177,177);
+}
+
+.select-color {
+    text-align: center;
+}
+
+button.send-color {
+    padding: 0 1em;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    color: white;
+    background-color: black;
+    font-size: 3em;
+    font-family: 'silombold', sans-serif;
+    border: none;
+    border-radius: 0;
+    text-shadow: 2px 2px #000;
+}
+
+
+button.send-color:disabled {
+    color: gray;
+}
+
+
+div#verify-color {
+    display: none;
+    height: 100%;
+}
+
+span.verify-color-text {
+    line-height: 94%;
+}
+
+h1.verify-color {
+    padding: 2em 0 1em;
+    font-size: 5em;
+    text-align: center;
+    text-shadow: 2px 2px #000;
+}
+
+button.verify-color-choice {
+    padding: 0 1em;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 3em;
+    font-family: 'silombold', sans-serif;
+    border: none;
+    border-radius: 0;
+    background-color: Transparent;
+    text-shadow: 2px 2px #000;
+}
+
+div.verify-button-holder {
+    text-align: center;
+}
+
+div#show-color {
+    display: none;
+    height: 100%;
+}
+
+h2.show-color {
+    padding: 1em;
+    margin: 0;
+    font-size: 3em;
+    text-shadow: 2px 2px #000;
+}
+
+h2.timer {
+    padding: 0;
+    margin: 2em;
+    font-size: 3em;
+    text-align: center;
+    text-shadow: 2px 2px #000;
+}

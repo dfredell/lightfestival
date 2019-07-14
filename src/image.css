@@ -1,0 +1,28 @@
+body {
+    margin: 0;
+}
+
+
+.position-image {
+    z-index: 50;
+    position: absolute;
+    width: 100%;
+}
+
+
+
+.ready-box {
+    position: absolute;
+    top: 68%;
+    z-index: 100;
+    margin-left: 10%;
+    margin-right: 10%;
+    border-radius: 2em;
+    background-color: rgba(255,255,255,.8);;
+}
+
+.ready-message {
+    text-align: center;
+    color: deepskyblue;
+    margin: 1em;
+}

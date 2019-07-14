@@ -1,0 +1,25 @@
+{
+  "name": "ApplicationName",
+  "version": "0.0.1",
+  "description": "Application Description",
+  "main": "server.js",
+  "scripts": {
+    "start": "concurrently --kill-others \"watchify src/main.js --poll=500 -v -o target/bundle.js\" \"node server.js\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/npm/npm.git"
+  },
+  "dependencies": {
+    "codemirror": "^5.47.0",
+    "codemirror-colorpicker": "^1.9.50",
+    "easytimer.js": "^3.2.0",
+    "invert-color": "^2.0.0",
+    "jquery": "^3.4.1",
+    "requirejs": "^2.3.6"
+  },
+  "start": "node server.js",
+  "devDependencies": {
+    "concurrently": "^4.1.0"
+  }
+}
