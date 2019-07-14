@@ -181,6 +181,10 @@ div#show-color {
     display: none;
     height: 100%;
 }
+div#show-color-error {
+    display: none;
+    height: 100%;
+}
 
 h2.show-color {
     padding: 1em;
