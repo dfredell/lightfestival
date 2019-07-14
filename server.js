@@ -12,6 +12,8 @@ var requirejs = require('requirejs');
 const path = require('path') // For working with file and directory paths
 var request = require('request');
 const { parse } = require('querystring');
+var submittedColors = [];
+var dmxOutput = [];
 
 const mimeTypes = {
     '.html': 'text/html',
@@ -61,15 +63,6 @@ const server = http.createServer(function (req, res) {
         res.write(data);
         return res.end();
     });
-    // fs.readFile('src/demofile1.html', function(err, data) {
-    //     res.writeHead(200, {'Content-Type': 'text/html'});
-    //     res.write(data);
-    //     res.end();
-    // });
-    //
-    // res.write(req.url);
-    //
-    // res.end('Hello World\n');
 
 });
 server.listen(port, function () {
@@ -87,6 +80,7 @@ function submitColor(req, res) {
         console.log("Submitted color " + body);
         console.log('Body: ' + body);
         res.writeHead(200, {'Content-Type': 'application/json'});
+        submitColor.push(body);
 
         var data = {};
         data.img = 'map1.png';
@@ -134,19 +128,60 @@ function currentRgbchannels(req, res) {
     res.end();
 }
 
-function sendRgbDmx(startChannel, rgbValues){
+function sendRgbDmx(){
+
+    var universe=0;
+    var url = 'http://localhost:9090/set_dmx';
+    var data = "u="+universe+"&d="+dmxOutput.join(",");
+
+    const options = {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      data: data,
+      url: url
+    };
+
+    require('request').debug = true
 
     var clientServerOptions = {
-            uri: 'http://localhost:9090/set_dmx',
-            body: JSON.stringify(postData),
+            uri: url,
+            body:  data,
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }
+          headers: { 'content-type': 'application/x-www-form-urlencoded' },
+
+        };
     request(clientServerOptions, function (error, response) {
-        console.log(error,response.body);
+        console.log(error,response);
         return;
     });
+}
+
+
+function startDmxPoster(){
 
 }
+
+function initDmx(){
+    var settings = JSON.parse(fs.readFileSync("settings.json"));
+
+
+    //fill array with 0s
+    dmxOutput = new Array(512).fill(0);
+
+    //setup parked channels
+    for(let item of settings.parkedchannels.split(",")) {
+        dmxOutput[parseInt(item) - 1] = 255;
+    };
+    //set rgb ones to white
+    for(let item of settings.rgbchannels.split(",")) {
+        var value = parseInt(item);
+        dmxOutput[value - 1] = 255;
+        dmxOutput[value] = 255;
+        dmxOutput[value + 1] = 255;
+    };
+    sendRgbDmx();
+}
+
+
+initDmx();
+startDmxPoster();
