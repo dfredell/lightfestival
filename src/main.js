@@ -9,7 +9,7 @@ var picker;
 window.onload = function () {
 
     window.console.log("Starting color picker");
-    // document.body.requestFullscreen();
+    document.body.requestFullscreen();
 
     if ($('#color-container').length) {
         setupPicker();
