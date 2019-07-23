@@ -1,21 +1,23 @@
 var CodeMirrorColorPicker = require('codemirror-colorpicker');
 var Timer = require('easytimer.js').Timer;
 var $ = require('jquery');
+window.jquery = $;
 const invert = require('invert-color');
-var admin = require("./admin.js")
+require("./admin.js");
+var white = 0;
 
 var picker;
 
-window.onload = function () {
+$(document).ready(function() {
 
     window.console.log("Starting color picker");
     document.body.requestFullscreen();
 
     if ($('#color-container').length) {
-        setupPicker();
         setupTimer();
         setupSubmit();
         setupVerify();
+        setupPicker();
     }
 
     if ($('#position-image').length) {
@@ -23,15 +25,16 @@ window.onload = function () {
         setupTimer();
     }
 
-};
+});
 
 function setupPicker() {
+    setTimeout(setupPickerDelay, 100);
     picker = new CodeMirrorColorPicker.create({
         position: 'inline',
         container: document.getElementById('color-container'),
         type: 'macos',
-        color: 'rgb(177,177,177)',
-        gradient: 'linear-gradient(to right, white 0%, green 100%)',
+        color: 'rgb(250,250,250)',
+        // gradient: 'linear-gradient(to right, white 0%, green 100%)',
         // outputFormat: 'hex',
         hideDelay: 0,
         onHide: function (c) {
@@ -43,8 +46,27 @@ function setupPicker() {
             $(".drag-pointer").css('background-color', c);
             $("#send-color").attr("disabled", false);
             $("#send-color").css('background-color', c);
+            $(".value-container").css('background-image','linear-gradient(to left, #ffffff 0%, '+c+' 100%)');
         }
     });
+
+}
+
+// setup drag bar after the rest of the page is set
+function setupPickerDelay() {
+    var element = $('#drag-bar')[0];
+    var options = {
+        grid: 10,
+        onDrag: function(e){
+            // window.console.log(e);
+            white = $("#drag-bar").position().left/ $("#drag-bar-container").width() * 255;
+        },
+        limit: {x:[0,$("#drag-bar-container").width()- $('#drag-bar').width() - 4],
+            y: $('#drag-bar').position().top}
+    };
+    var draggable = require("draggable");
+
+    new draggable(element, options);
 }
 
 function getTime() {
@@ -109,14 +131,15 @@ function verifyNo() {
  */
 function verifyYes() {
     window.console.log("Submit color" + picker.getColor(true));
-    var color = picker.getColor();
-    $("#show-color").css("background-color", color);
+    var color = picker.getColor(true);
+    color.w = parseInt(white);
+    $("#show-color").css("background-color", picker.getColor(false));
     $.ajax({
         url: '/submitColor',
         contentType: 'application/json',
         method: 'POST',
         json: 'json',
-        data: JSON.stringify(picker.getColor(true)),
+        data: JSON.stringify(color),
         success: function (msg) {
             $("#verify-color").hide();
             $("#show-color").show();

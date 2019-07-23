@@ -96,7 +96,11 @@ function submitColor(req, res) {
         }
 
         res.writeHead(200, {'Content-Type': 'application/json'});
+        // add to queue
         submittedColors.push(body);
+
+        // save log
+        fs.appendFile("color.log", new Date().toISOString() + "\t" + body, function(){});
 
         var data = {};
         data.img = 'map1.png';
@@ -222,6 +226,7 @@ function runTransition(){
         transitionFinishDmx[fixtureMap[i]-1] = color.r;
         transitionFinishDmx[fixtureMap[i]] = color.g;
         transitionFinishDmx[fixtureMap[i]+1] = color.b;
+        transitionFinishDmx[fixtureMap[i]+2] = color.w;
         i++;
     }
 
