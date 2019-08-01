@@ -152,8 +152,8 @@ function verifyYes() {
     picker.getColor(true);
     var color = mergeRgbWhite();
     var cssColor = getCssColor(color);
-    window.console.log("Submit color" + cssColor);
     color.w = parseInt(white);
+    window.console.log("Submit color " + color);
     $("#show-color").css("background-color", cssColor);
     $.ajax({
         url: '/submitColor',
