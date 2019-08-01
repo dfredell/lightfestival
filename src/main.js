@@ -27,6 +27,27 @@ $(document).ready(function() {
 
 });
 
+function getCssColor(color) {
+    return 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
+}
+
+function updateColors() {
+    var color = mergeRgbWhite();
+    var cssColor = getCssColor(color);
+    $(".drag-bar").css('background-color', picker.getColor());
+    $(".drag-pointer,#send-color").css('background-color', cssColor);
+    $("#send-color").attr("disabled", false);
+    $(".value-container").css('background-image','linear-gradient(to left, #ffffff 0%, '+picker.getColor()+' 100%)');
+}
+
+function mergeRgbWhite(){
+    var color = picker.getColor(true);
+    color.r = calcColor(color.r,getDragPercent());
+    color.g = calcColor(color.g,getDragPercent());
+    color.b = calcColor(color.b,getDragPercent());
+    return color;
+}
+
 function setupPicker() {
     setTimeout(setupPickerDelay, 100);
     picker = new CodeMirrorColorPicker.create({
@@ -42,11 +63,7 @@ function setupPicker() {
         },
         onChange: function (c) {
             // console.log('change', c);
-            $(".drag-bar").css('background-color', c);
-            $(".drag-pointer").css('background-color', c);
-            $("#send-color").attr("disabled", false);
-            $("#send-color").css('background-color', c);
-            $(".value-container").css('background-image','linear-gradient(to left, #ffffff 0%, '+c+' 100%)');
+            updateColors();
         }
     });
 
@@ -59,7 +76,8 @@ function setupPickerDelay() {
         grid: 10,
         onDrag: function(e){
             // window.console.log(e);
-            white = $("#drag-bar").position().left/ $("#drag-bar-container").width() * 255;
+            white = getDragPercent() * 255;
+            updateColors();
         },
         limit: {x:[0,$("#drag-bar-container").width()- $('#drag-bar').width() - 4],
             y: $('#drag-bar').position().top}
@@ -103,13 +121,14 @@ function setupTimer() {
 }
 
 function submitColor() {
-    var color = picker.getColor();
+    var color = mergeRgbWhite();
+    var cssColor = getCssColor(color);
     window.console.log("Submit color" + color);
     // window.location.replace('verify?color=' + color.r +"");
     $("#select-color").hide();
     $("#verify-color").show();
-    $("#verify-color").css("background-color", color);
-    $(".verify-color-text").css("color", invert(picker.getColor(true)));
+    $("#verify-color").css("background-color", cssColor);
+    $(".verify-color-text").css("color", invert(color));
 }
 
 function setupSubmit() {
@@ -130,10 +149,12 @@ function verifyNo() {
  * User submits their color choice
  */
 function verifyYes() {
-    window.console.log("Submit color" + picker.getColor(true));
-    var color = picker.getColor(true);
+    picker.getColor(true);
+    var color = mergeRgbWhite();
+    var cssColor = getCssColor(color);
+    window.console.log("Submit color" + cssColor);
     color.w = parseInt(white);
-    $("#show-color").css("background-color", picker.getColor(false));
+    $("#show-color").css("background-color", cssColor);
     $.ajax({
         url: '/submitColor',
         contentType: 'application/json',
@@ -157,6 +178,23 @@ function verifyYes() {
             }, (getTime().minutes * 60 + getTime().seconds) * 1000)
         }
     });
+}
+
+// c color, w white
+function calcColor(c,w){
+    // Result: DMX R=100+(255-100)/2=177 G=155 + (255-155)/2=205 B= 255 + (255-255)/2= 255 W152
+    return parseInt(c+(255-c)*w);
+}
+
+var cachePerc = 0;
+// Return the percentage of the drag bar position
+function getDragPercent(){
+    var perc = $("#drag-bar").position().left/ $("#drag-bar-container").width();
+    if (Number.isNaN(perc)){
+        return cachePerc;
+    }
+    cachePerc = perc;
+    return perc;
 }
 
 function setupPositionImage() {
