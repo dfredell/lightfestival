@@ -153,7 +153,7 @@ function verifyYes() {
     var color = mergeRgbWhite();
     var cssColor = getCssColor(color);
     color.w = parseInt(white);
-    window.console.log("Submit color " + color);
+    window.console.log("Submit color " + JSON.stringify(color));
     $("#show-color").css("background-color", cssColor);
     $.ajax({
         url: '/submitColor',
