@@ -14,10 +14,10 @@ $(document).ready(function() {
     document.body.requestFullscreen();
 
     if ($('#color-container').length) {
+        setupPicker();
         setupTimer();
         setupSubmit();
         setupVerify();
-        setupPicker();
     }
 
     if ($('#position-image').length) {
@@ -25,7 +25,7 @@ $(document).ready(function() {
         setupTimer();
     }
 
-});
+};
 
 function getCssColor(color) {
     return 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
@@ -49,12 +49,11 @@ function mergeRgbWhite(){
 }
 
 function setupPicker() {
-    setTimeout(setupPickerDelay, 100);
     picker = new CodeMirrorColorPicker.create({
         position: 'inline',
         container: document.getElementById('color-container'),
         type: 'macos',
-        color: 'rgb(250,250,250)',
+        color: 'rgb(177,177,177)',
         // gradient: 'linear-gradient(to right, white 0%, green 100%)',
         // outputFormat: 'hex',
         hideDelay: 0,
@@ -160,7 +159,7 @@ function verifyYes() {
         contentType: 'application/json',
         method: 'POST',
         json: 'json',
-        data: JSON.stringify(color),
+        data: JSON.stringify(picker.getColor(true)),
         success: function (msg) {
             $("#verify-color").hide();
             $("#show-color").show();
