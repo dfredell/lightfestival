@@ -3,7 +3,8 @@ const http = require('http');
 const hostname = '127.0.0.1';
 const os = require('os');
 var port = 80;
-if(os.release().indexOf('MANJARO')>0){
+console.log("Starting with os " + os.release());
+if(os.hostname().indexOf('manjaro')>0){
     port = 8080;
 }
 const fs = require('fs');
@@ -280,15 +281,37 @@ function initDmx(){
     //setup parked channels
     for(let item of settings.parkedchannels) {
         dmxOutput[item - 1] = 255;
-    };
+    }
     //set rgb ones to white
     for(let value of settings.rgbchannels) {
         dmxOutput[value - 1] = 255;
         dmxOutput[value] = 255;
         dmxOutput[value + 1] = 255;
-    };
+    }
 }
 
+// The signals we want to handle
+// NOTE: although it is tempting, the SIGKILL signal (9) cannot be intercepted and handled
+var signals = {
+    'SIGHUP': 1,
+    'SIGINT': 2,
+    'SIGTERM': 15
+};
+// Do any necessary shutdown logic for our application here
+const shutdown = (signal, value) => {
+    console.log("shutdown!");
+    server.close(() => {
+        console.log(`server stopped by ${signal} with value ${value}`);
+        process.exit(128 + value);
+    });
+};
+// Create a listener for each of the signals that we want to handle
+Object.keys(signals).forEach((signal) => {
+    process.on(signal, () => {
+        console.log(`process received a ${signal} signal`);
+        shutdown(signal, signals[signal]);
+    });
+});
 
 initDmx();
 sendRgbDmx();

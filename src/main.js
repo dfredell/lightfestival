@@ -4,7 +4,6 @@ var $ = require('jquery');
 window.jquery = $;
 const invert = require('invert-color');
 require("./admin.js");
-var white = 0;
 
 var picker;
 
@@ -25,27 +24,19 @@ $(document).ready(function() {
         setupTimer();
     }
 
-};
+});
 
 function getCssColor(color) {
     return 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
 }
 
 function updateColors() {
-    var color = mergeRgbWhite();
+    var color = picker.getColor(true);
     var cssColor = getCssColor(color);
     $(".drag-bar").css('background-color', picker.getColor());
     $(".drag-pointer,#send-color").css('background-color', cssColor);
     $("#send-color").attr("disabled", false);
-    $(".value-container").css('background-image','linear-gradient(to left, #ffffff 0%, '+picker.getColor()+' 100%)');
-}
-
-function mergeRgbWhite(){
-    var color = picker.getColor(true);
-    color.r = calcColor(color.r,getDragPercent());
-    color.g = calcColor(color.g,getDragPercent());
-    color.b = calcColor(color.b,getDragPercent());
-    return color;
+    $(".value-container").css('background-image','linear-gradient(to right, #000000 0%, '+topColor()+' 100%)');
 }
 
 function setupPicker() {
@@ -53,7 +44,7 @@ function setupPicker() {
         position: 'inline',
         container: document.getElementById('color-container'),
         type: 'macos',
-        color: 'rgb(177,177,177)',
+        color: 'rgb(255,255,255)',
         // gradient: 'linear-gradient(to right, white 0%, green 100%)',
         // outputFormat: 'hex',
         hideDelay: 0,
@@ -63,27 +54,10 @@ function setupPicker() {
         onChange: function (c) {
             // console.log('change', c);
             updateColors();
+            console.log(rgbToRgbw());
         }
     });
 
-}
-
-// setup drag bar after the rest of the page is set
-function setupPickerDelay() {
-    var element = $('#drag-bar')[0];
-    var options = {
-        grid: 10,
-        onDrag: function(e){
-            // window.console.log(e);
-            white = getDragPercent() * 255;
-            updateColors();
-        },
-        limit: {x:[0,$("#drag-bar-container").width()- $('#drag-bar').width() - 4],
-            y: $('#drag-bar').position().top}
-    };
-    var draggable = require("draggable");
-
-    new draggable(element, options);
 }
 
 function getTime() {
@@ -120,9 +94,9 @@ function setupTimer() {
 }
 
 function submitColor() {
-    var color = mergeRgbWhite();
+    var color = rgbToRgbw();
     var cssColor = getCssColor(color);
-    window.console.log("Submit color" + color);
+    window.console.log("Verify color" + JSON.stringify(color));
     // window.location.replace('verify?color=' + color.r +"");
     $("#select-color").hide();
     $("#verify-color").show();
@@ -148,10 +122,8 @@ function verifyNo() {
  * User submits their color choice
  */
 function verifyYes() {
-    picker.getColor(true);
-    var color = mergeRgbWhite();
+    var color = rgbToRgbw();
     var cssColor = getCssColor(color);
-    color.w = parseInt(white);
     window.console.log("Submit color " + JSON.stringify(color));
     $("#show-color").css("background-color", cssColor);
     $.ajax({
@@ -159,7 +131,7 @@ function verifyYes() {
         contentType: 'application/json',
         method: 'POST',
         json: 'json',
-        data: JSON.stringify(picker.getColor(true)),
+        data: JSON.stringify(color),
         success: function (msg) {
             $("#verify-color").hide();
             $("#show-color").show();
@@ -185,17 +157,6 @@ function calcColor(c,w){
     return parseInt(c+(255-c)*w);
 }
 
-var cachePerc = 0;
-// Return the percentage of the drag bar position
-function getDragPercent(){
-    var perc = $("#drag-bar").position().left/ $("#drag-bar-container").width();
-    if (Number.isNaN(perc)){
-        return cachePerc;
-    }
-    cachePerc = perc;
-    return perc;
-}
-
 function setupPositionImage() {
     $('#position-image').prop('src', '/src/images/' + new URLSearchParams(window.location.search).get('img'));
 }
@@ -210,4 +171,82 @@ function pad(num, size) {
     var s = num + "";
     while (s.length < size) s = "0" + s;
     return s;
+}
+
+
+/**
+ * https://stackoverflow.com/questions/40312216/converting-rgb-to-rgbw/40318604#40318604
+ */
+function rgbToRgbw(){
+    var colorPicker = picker.getColor(true);
+    var Ri = colorPicker.r;
+    var Gi = colorPicker.g;
+    var Bi = colorPicker.b;
+    //Get the maximum between R, G, and B
+    var tM = Math.max(Ri, Math.max(Gi, Bi));
+
+//If the maximum value is 0, immediately return pure black.
+    if(tM === 0)
+    { return { r:0,g: 0, b: 0, w: 0 }; }
+
+//This section serves to figure out what the color with 100% hue is
+    var multiplier = 255.0 / tM;
+    var hR = Ri * multiplier;
+    var hG = Gi * multiplier;
+    var hB = Bi * multiplier;
+
+//This calculates the Whiteness (not strictly speaking Luminance) of the color
+    var M = Math.max(hR, Math.max(hG, hB));
+    var m = Math.min(hR, Math.min(hG, hB));
+    var Luminance = ((M + m) / 2.0 - 127.5) * (255.0/127.5) / multiplier;
+
+//Calculate the output values
+    var Wo = parseInt(Luminance);
+    var Bo = parseInt(Bi - Luminance);
+    var Ro = parseInt(Ri - Luminance);
+    var Go = parseInt(Gi - Luminance);
+
+//Trim them so that they are all between 0 and 255
+    if (Wo < 0) Wo = 0;
+    if (Bo < 0) Bo = 0;
+    if (Ro < 0) Ro = 0;
+    if (Go < 0) Go = 0;
+    if (Wo > 255) Wo = 255;
+    if (Bo > 255) Bo = 255;
+    if (Ro > 255) Ro = 255;
+    if (Go > 255) Go = 255;
+    return { r :Ro, g : Go, b : Bo, w : Wo };
+}
+
+/**
+ * figure out the brightest color values
+ * @returns {string} css
+ */
+function topColor(){
+
+    var colorPicker = picker.getColor(true);
+    var Ri = colorPicker.r;
+    var Gi = colorPicker.g;
+    var Bi = colorPicker.b;
+    //Get the maximum between R, G, and B
+    var tM = Math.max(Ri, Math.max(Gi, Bi));
+
+//Calculate the output values
+//This section serves to figure out what the color with 100% hue is
+    var multiplier = 255.0 / tM;
+    var Ro = parseInt(Ri * multiplier);
+    var Go = parseInt(Gi * multiplier);
+    var Bo = parseInt(Bi * multiplier);
+
+
+//Trim them so that they are all between 0 and 255
+    if (Bo < 0) Bo = 0;
+    if (Ro < 0) Ro = 0;
+    if (Go < 0) Go = 0;
+    if (Bo > 255) Bo = 255;
+    if (Ro > 255) Ro = 255;
+    if (Go > 255) Go = 255;
+    return `rgb(${Ro},${Go},${Bo})`;
+    // return { r :Ro, g : Go, b : Bo };
+
 }
