@@ -4,3 +4,4 @@
 2019-07-14 8h finished the server logic which includes the queuing of user colors, fading, sending levels to OLA and admin settings.
 2019-07-21 1.5h create white draggable
 2019-07-22 1.5h white draggable 
+2019-08-04 2h back to black bar, calc RGB to RGBW
