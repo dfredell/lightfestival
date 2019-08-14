@@ -18,6 +18,7 @@ body {
     background-color: black;
     color: white;
     margin: 0;
+    overflow: hidden; /* Don't scroll page  when selecting edge color*/
 }
 
 h1.invaders-title {
@@ -71,7 +72,7 @@ a.enter {
     /*Remove box*/
     border: none;
     box-shadow: none;
-    width: 100%;
+    width: 98%; /* dont cutoff color wheel on edge */
     background-color: black;
     /* height: 80%; */
     /* height: 500px;
@@ -103,6 +104,7 @@ a.enter {
 #color-container .codemirror-colorpicker.macos .value > .value-container {
     height: 3em;
     /*background-image: linear-gradient(to right, #aaaaaa 0%, rgba(255, 255, 255, 0) 100%);*/
+    display: none;
 }
 #color-container .codemirror-colorpicker.macos .value > .value-container .drag-bar {
     width: 2em;

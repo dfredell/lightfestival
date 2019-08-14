@@ -1,13 +1,17 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<html>
 <head>
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+
     <link rel="stylesheet" href="/node_modules/codemirror-colorpicker/dist/codemirror-colorpicker.css">
     <link rel="stylesheet" href="/src/main.css">
 
-    <script src="/target/bundle.js" type="javascript"></script>
+    <script src="/target/bundle.js"></script>
     <!--    No zoom on mobile -->
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'/>
+
+
+    <!-- Insert this line after script imports -->
+    <script>if (window.module) module = window.module;</script>
     <title>Invaders</title>
 </head>
 <body>
