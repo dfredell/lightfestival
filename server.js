@@ -147,7 +147,7 @@ function submitRgbchannels(req, res) {
             settings.rgbchannels = settings.rgbchannels.split(",").map(Number);
             settings.parkedchannels = settings.parkedchannels.split(",").map(Number);
             settings.fadetime = parseInt(settings.fadetime);
-            fs.writeFile("settings.json", JSON.stringify(settings), function(){});
+            fs.writeFile("settings.json", JSON.stringify(settings) + "\n", function(){});
             res.write("Success");
             res.end();
         })
