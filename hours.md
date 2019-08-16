@@ -5,3 +5,4 @@
 2019-07-21 1.5h create white draggable
 2019-07-22 1.5h white draggable 
 2019-08-04 2h back to black bar, calc RGB to RGBW
+2019-08-15 2h Make Pi, All white, rm white bar

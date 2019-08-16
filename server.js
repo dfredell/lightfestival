@@ -52,6 +52,11 @@ const server = http.createServer(function (req, res) {
     }else if(req.url === '/rgbchannels'){
         submitRgbchannels(req,res);
         return;
+    }else if(req.url === '/panic'){
+        initDmx();
+        res.write("Success");
+        res.end();
+        return;
     }else if(req.url === '/'){
         res.writeHead(302, {'Location':'src/index.html'});
         return res.end();
@@ -164,13 +169,6 @@ function sendRgbDmx(){
     var universe=0;
     var url = 'http://localhost:9090/set_dmx';
     var data = "u="+universe+"&d="+dmxOutput.join(",");
-
-    const options = {
-      method: 'POST',
-      headers: { 'content-type': 'application/x-www-form-urlencoded' },
-      data: data,
-      url: url
-    };
 
 //    require('request').debug = true
 

@@ -1,8 +1,6 @@
 <html>
 <head>
 
-
-
     <script src="/target/bundle.js"></script>
     <!--    No zoom on mobile -->
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'/>
@@ -21,6 +19,10 @@
     <input type="text" id="fadetime" name="fadetime"/>
     <br/>
     <input id="submit-rgb-settings" type="submit"/>
+</form>
+<form action="/panic" method="post" id="form-panic" style="margin-top: 5em">
+    <p>Set all fixtures to all White</p>
+    <input id="submit-white" type="submit"/>
 </form>
 </body>
 </html>
