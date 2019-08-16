@@ -106,7 +106,7 @@ function submitColor(req, res) {
         submittedColors.push(body);
 
         // save log
-        fs.appendFile("color.log", new Date().toISOString() + "\t" + body, function(){});
+        fs.appendFile("color.log", new Date().toISOString() + "\t" + body + "\n", function(){});
 
         var data = {};
         data.img = 'map1.png';
@@ -147,7 +147,7 @@ function submitRgbchannels(req, res) {
             settings.rgbchannels = settings.rgbchannels.split(",").map(Number);
             settings.parkedchannels = settings.parkedchannels.split(",").map(Number);
             settings.fadetime = parseInt(settings.fadetime);
-            fs.writeFile("settings.json", JSON.stringify(settings) + "\n", function(){});
+            fs.writeFile("settings.json", JSON.stringify(settings), function(){});
             res.write("Success");
             res.end();
         })
