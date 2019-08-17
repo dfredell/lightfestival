@@ -14,7 +14,6 @@ $(document).ready(function() {
     setupEnter();
     setupBodyClick();
 
-
     if ($('#color-container').length) {
         setupTimer();
         setupSubmit();
@@ -116,7 +115,6 @@ function setupTimer() {
 }
 
 function submitColor() {
-    openFullscreen(document.body);
     var color = picker.getColor(true);
     var cssColor = getCssColor(color);
     window.console.log("Verify color" + JSON.stringify(color));
@@ -142,8 +140,8 @@ function setupSubmit() {
 }
 
 function setupBodyClick() {
-    $('body').on('click', function(){
-        openFullscreen(document.body);
+    $('#enter-screen').on('click', function(){
+        openFullscreen(this);
     });
 }
 

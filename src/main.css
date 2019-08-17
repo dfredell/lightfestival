@@ -29,6 +29,10 @@ h1.invaders-title {
     padding-top: 10%;
 }
 
+#enter-screen {
+    height: 100%;
+}
+
 div.enter-box {
     padding-left: 10%;
     padding-top: 10%;
