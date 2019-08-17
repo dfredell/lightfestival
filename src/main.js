@@ -10,10 +10,10 @@ var picker;
 $(document).ready(function() {
 
     window.console.log("Starting color picker");
-    document.body.requestFullscreen();
+    openFullscreen(document.body);
+    setupEnter();
 
     if ($('#color-container').length) {
-        setupPicker();
         setupTimer();
         setupSubmit();
         setupVerify();
@@ -26,6 +26,18 @@ $(document).ready(function() {
 
 });
 
+function openFullscreen(elem) {
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+    } else if (elem.mozRequestFullScreen) { /* Firefox */
+        elem.mozRequestFullScreen();
+    } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+        elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) { /* IE/Edge */
+        elem.msRequestFullscreen();
+    }
+}
+
 function getCssColor(color) {
     return 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
 }
@@ -35,11 +47,19 @@ function updateColors() {
     var cssColor = getCssColor(color);
     $(".drag-bar").css('background-color', picker.getColor());
     $(".drag-pointer,#send-color").css('background-color', cssColor);
+    $("#send-color").css('color','white');
     $("#send-color").attr("disabled", false);
     $(".value-container").css('background-image','linear-gradient(to right, #000000 0%, '+topColor()+' 100%)');
 }
 
 function setupPicker() {
+    if (picker != null){
+        picker.initColor('rgb(255,255,255)');
+        $("#send-color").css('color','gray');
+        $("#send-color").css('background-color','black');
+        $("#send-color").attr("disabled", true);
+        return;
+    }
     picker = new CodeMirrorColorPicker.create({
         position: 'inline',
         container: document.getElementById('color-container'),
@@ -94,14 +114,25 @@ function setupTimer() {
 }
 
 function submitColor() {
-    var color = rgbToRgbw();
+    openFullscreen(document.body);
+    var color = picker.getColor(true);
     var cssColor = getCssColor(color);
     window.console.log("Verify color" + JSON.stringify(color));
     // window.location.replace('verify?color=' + color.r +"");
     $("#select-color").hide();
     $("#verify-color").show();
     $("#verify-color").css("background-color", cssColor);
-    $(".verify-color-text").css("color", invert(color));
+    $(".verify-color-text,p.timer").css("color", invert(color));
+}
+
+function setupEnter() {
+    $('#enter-button').on('click',function () {
+        $('#enter-screen').hide();
+        $('#select-color').show();
+        $("p.timer").show();
+        $("p.timer").css('color','white');
+        setupPicker();
+    });
 }
 
 function setupSubmit() {
@@ -116,28 +147,33 @@ function setupVerify() {
 function verifyNo() {
     $("#select-color").show();
     $("#verify-color").hide();
+    $("p.timer").css('color','white');
 }
 
 /**
  * User submits their color choice
  */
 function verifyYes() {
-    var color = rgbToRgbw();
+    var color = picker.getColor(true);
     var cssColor = getCssColor(color);
-    window.console.log("Submit color " + JSON.stringify(color));
+    window.console.log("Submit color rgb  " + JSON.stringify(color));
+    let colorRgbw = rgbToRgbw();
+    window.console.log("Submit color rgbw " + JSON.stringify(colorRgbw));
     $("#show-color").css("background-color", cssColor);
+    $("#show-color-error").css("background-color", cssColor);
     $.ajax({
         url: '/submitColor',
         contentType: 'application/json',
         method: 'POST',
         json: 'json',
-        data: JSON.stringify(color),
+        data: JSON.stringify(colorRgbw),
         success: function (msg) {
             $("#verify-color").hide();
             $("#show-color").show();
             $("p.timer").hide();
             setTimeout(function () {
-                window.location.href = ("/src/index.html");
+                $('#enter-screen').show();
+                $('#show-color').hide();
             }, 5000)
         },
         error: function (msg) {
@@ -145,7 +181,8 @@ function verifyYes() {
             $("#show-color-error").show();
             $("p.timer").hide();
             setTimeout(function () {
-                window.location.href = ("/src/index.html");
+                $('#enter-screen').show();
+                $('#show-color-error').hide();
             }, (getTime().minutes * 60 + getTime().seconds) * 1000)
         }
     });

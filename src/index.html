@@ -15,10 +15,46 @@
     <title>Invaders</title>
 </head>
 <body>
-<h1 class="invaders-title">SPACE INVADERS</h1>
+<p class="timer">3:00</p>
 
-<div class="enter-box">
-    <a href="color.html" class="enter">ENTER!</a>
+<div id="enter-screen">
+    <h1 class="invaders-title">SPACE INVADERS</h1>
+
+    <div class="enter-box">
+        <a  class="enter" id="enter-button">ENTER!</a>
+    </div>
+</div>
+
+
+<div id="select-color">
+    <div id="color-container"></div>
+    <h1 class="select-color">Select your color</h1>
+
+    <button type="button" class="send-color" id="send-color" disabled>next page</button>
+</div>
+
+<div id="verify-color">
+    <h1 class="verify-color"><span class="verify-color-text">Are you sure?</span></h1>
+
+    <div class="verify-button-holder">
+        <button type="button" class="verify-color-choice" id="verify-yes">
+            <span class="verify-color-text">YES!</span>
+        </button>
+        <button type="button" class="verify-color-choice" id="verify-no">
+            <span class="verify-color-text">NO!</span>
+        </button>
+    </div>
+</div>
+
+<div id="show-color">
+    <h2 class="show-color"><span class="verify-color-text">This is your color</span> </h2>
+    <h2 class="show-color"><span class="verify-color-text">Wait for your light!</span> </h2>
+    <h2 class="timer verify-color-text">3:00</h2>
+</div>
+
+<div id="show-color-error">
+    <h2 class="show-color"><span class="verify-color-text">All colors have been claimed please wait</span> </h2>
+    <h2 class="timer verify-color-text">3:00</h2>
 </div>
 
 </body>

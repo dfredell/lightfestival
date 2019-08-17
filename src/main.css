@@ -11,6 +11,7 @@ p.timer {
     float: right;
     font-size: 2em;
     margin: 0;
+    display: none;
 }
 
 body {
@@ -125,6 +126,10 @@ a.enter {
 
 .select-color {
     text-align: center;
+}
+
+#select-color {
+    display: none;
 }
 
 button.send-color {
