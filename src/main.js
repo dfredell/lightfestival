@@ -141,7 +141,7 @@ function setupSubmit() {
 
 function setupBodyClick() {
     $('#enter-screen').on('click', function(){
-        openFullscreen(this);
+        openFullscreen(document.body);
     });
 }
 
