@@ -12,6 +12,8 @@ $(document).ready(function() {
     window.console.log("Starting color picker");
     openFullscreen(document.body);
     setupEnter();
+    setupBodyClick();
+
 
     if ($('#color-container').length) {
         setupTimer();
@@ -137,6 +139,12 @@ function setupEnter() {
 
 function setupSubmit() {
     $('#send-color').on('click', submitColor);
+}
+
+function setupBodyClick() {
+    $('body').on('click', function(){
+        openFullscreen(document.body);
+    });
 }
 
 function setupVerify() {
