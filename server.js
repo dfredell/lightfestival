@@ -282,9 +282,10 @@ function initDmx(){
     }
     //set rgb ones to white
     for(let value of settings.rgbchannels) {
-        dmxOutput[value - 1] = 255;
-        dmxOutput[value] = 255;
-        dmxOutput[value + 1] = 255;
+        dmxOutput[value - 1] = 255; //r
+        dmxOutput[value] = 255; //g
+        dmxOutput[value + 1] = 255; //b
+        dmxOutput[value + 2] = 255; //w
     }
 }
 

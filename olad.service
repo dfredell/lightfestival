@@ -1,0 +1,40 @@
+[Unit]
+Documentation=man:systemd-sysv-generator(8)
+Description=LSB: OLA daemon
+After=remote-fs.target network-online.target networking.service
+Wants=network-online.target
+
+
+
+[Service]
+Type=forking
+Restart=always
+RestartSec=15
+TimeoutSec=5min
+IgnoreSIGPIPE=no
+KillMode=process
+GuessMainPID=no
+RemainAfterExit=yes
+SuccessExitStatus=5 6
+
+ExecStartPre=/bin/sleep 10
+ExecStart=/sbin/start-stop-daemon --start --background --make-pidfile --pidfile $PIDFILE --umask 0002 --chuid $USER --exec $DAEMON -- $DAEMON_ARGS
+ExecStop=/sbin/start-stop-daemon --stop --pidfile $PIDFILE --chuid $USER --exec $DAEMON --retry 10; rm $PIDFILE
+#ExecReload=$0 stop && $0 start
+
+
+
+Environment="PATH=/usr/local/bin:/bin:/usr/bin"
+Environment="NAME=olad"
+Environment="DAEMON=/usr/bin/olad"
+Environment="PIDFILE=/var/run/olad.pid"
+Environment="DESC=OLA daemon"
+Environment="USER=olad"
+Environment="LOG_LEVEL=3"
+Environment="DAEMON_ARGS=--syslog --log-level 3  --config-dir /etc/ola"
+Environment="CONFIG_DIR=/var/lib/ola/conf"
+
+
+[Install]
+WantedBy=multi-user.target
+WantedBy=network-online.target
