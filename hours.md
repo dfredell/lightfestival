@@ -7,3 +7,4 @@
 2019-08-04 2h back to black bar, calc RGB to RGBW
 2019-08-15 2h Make Pi, All white, rm white bar
 2019-08-16 4h Finished up pi, made it wifi, remote access
+2019-09-03 1h Fix end fade, make 2 min for send, use server's time for countdown, add credits
