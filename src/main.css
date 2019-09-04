@@ -204,6 +204,15 @@ h2.show-color {
     text-shadow: 2px 2px #000;
 }
 
+h3.credits {
+    padding: 1em;
+    margin: 0;
+    font-size: 2em;
+    text-shadow: 2px 2px #000;
+    position: absolute;
+    bottom: 0;
+}
+
 h2.timer {
     padding: 0;
     margin: 2em;

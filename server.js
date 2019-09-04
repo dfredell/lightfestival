@@ -118,19 +118,23 @@ function submitColor(req, res) {
 // get the server's version of a 3min countdown
 function submitTimer(req, res) {
     res.writeHead(200, {'Content-Type': 'application/json'});
+    res.write(JSON.stringify(calcNextSend()));
+    res.end();
+}
+
+// Returns the next time to send DMX updates
+function calcNextSend() {
 
     var now = new Date();
     var nowSec = now.getUTCSeconds();
     var nowMin = now.getUTCMinutes();
-    var remainingMin = 2-(nowMin%3);
+    var remainingMin = 1-(nowMin%2);
 
     var data = {};
     data.minutes = remainingMin;
     data.seconds = 60 - nowSec;
-    res.write(JSON.stringify(data));
-    res.end();
+    return data;
 }
-
 
 // update the settings file
 function submitRgbchannels(req, res) {
@@ -188,14 +192,9 @@ function sendRgbDmx(){
 
 
 function setupTransitions(){
-    var now = new Date();
-    var nowSec = now.getUTCSeconds();
-    var nowMin = now.getUTCMinutes();
-    var remainingMin = 2-(nowMin%3);
-    var secToTransition = remainingMin*60+ (60 - nowSec);
-
+    var time = calcNextSend();
     // how long between sending the queue to the lights
-   setTimeout(setupTransitions, secToTransition * 1000);
+   setTimeout(setupTransitions, (time.minutes * 60 + time.seconds) * 1000);
     // setTimeout(setupTransitions, 30000);
     runTransition();
 }
@@ -209,7 +208,7 @@ function runTransition(){
     var fixtures = settings.rgbchannels;
     var fixtureMap = []; // value of the r channels
 
-
+    // randomize the fixture placement of submitted colors
     while(fixtureMap.length < submittedColors.length){
         var randFixture = fixtures[Math.floor(Math.random() * fixtures.length)];
         if(!fixtureMap.includes(randFixture)){
@@ -253,10 +252,16 @@ function runTransition(){
 // start the fade ball rolling, called every 3min then every ~100ms
 function startFade(){
 
-    if(numOfStepsLeft>0) {
+    if(numOfStepsLeft>2) {
         numOfStepsLeft--;
         fade();
         setTimeout(startFade, 1000/fadeStepsPerSec);
+    } else {
+        var i=0;
+        while(i<dmxOutput.length){
+            dmxOutput[i]=transitionFinishDmx[i];
+            i++;
+        }
     }
 }
 

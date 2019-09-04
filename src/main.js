@@ -81,8 +81,9 @@ function setupPicker() {
 
 }
 
-function getTime() {
+function getLocalTime() {
 
+    // calc local time
     var now = new Date();
     var nowSec = now.getUTCSeconds();
     var nowMin = now.getUTCMinutes();
@@ -91,6 +92,26 @@ function getTime() {
     var time = {};
     time.minutes = remainingMin;
     time.seconds = 60 - nowSec;
+
+}
+
+function getTime() {
+
+    var time = {};
+    // ask server for time
+    $.ajax({
+        url: '/timer',
+        contentType: 'application/json',
+        method: 'GET',
+        json: 'json',
+        async: false,
+        success: function (msg) {
+            time = msg;
+        },
+        error: function () {
+            time = getLocalTime();
+        }
+    });
 
     return time;
 }
@@ -180,7 +201,7 @@ function verifyYes() {
             setTimeout(function () {
                 $('#enter-screen').show();
                 $('#show-color').hide();
-            }, 5000)
+            }, 10000)
         },
         error: function (msg) {
             $("#verify-color").hide();
