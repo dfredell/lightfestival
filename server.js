@@ -4,7 +4,7 @@ const hostname = '127.0.0.1';
 const os = require('os');
 var port = 80;
 console.log("Starting with os " + os.release());
-if(os.hostname().indexOf('manjaro')>0){
+if (os.hostname().indexOf('manjaro') > 0) {
     port = 8080;
 }
 const fs = require('fs');
@@ -12,7 +12,7 @@ const url = require('url');
 var requirejs = require('requirejs');
 const path = require('path') // For working with file and directory paths
 var request = require('request');
-const { parse } = require('querystring');
+const {parse} = require('querystring');
 var submittedColors = [];
 var dmxOutput = [];
 var incrementalDiff = [];
@@ -38,34 +38,33 @@ const mimeTypes = {
 };
 
 
-
 const server = http.createServer(function (req, res) {
-    if(req.url === '/submitColor'){
-        submitColor(req,res);
+    if (req.url === '/submitColor') {
+        submitColor(req, res);
         return;
-    }else if(req.url === '/timer'){
-        submitTimer(req,res);
+    } else if (req.url === '/timer') {
+        submitTimer(req, res);
         return;
-    }else if(req.url === '/currentrgbchannels'){
-        currentRgbchannels(req,res);
+    } else if (req.url === '/currentrgbchannels') {
+        currentRgbchannels(req, res);
         return;
-    }else if(req.url === '/rgbchannels'){
-        submitRgbchannels(req,res);
+    } else if (req.url === '/rgbchannels') {
+        submitRgbchannels(req, res);
         return;
-    }else if(req.url === '/panic'){
+    } else if (req.url === '/panic') {
         initDmx();
         res.write("Success");
         res.end();
         return;
-    }else if(req.url === '/'){
-        res.writeHead(302, {'Location':'src/index.html'});
+    } else if (req.url === '/') {
+        res.writeHead(302, {'Location': 'src/index.html'});
         return res.end();
     }
     res.statusCode = 200;
     res.setHeader('Content-Type', 'text/plain');
-    var q = url.parse( req.url, true);
+    var q = url.parse(req.url, true);
     var filename = "." + q.pathname;
-    fs.readFile(filename, function(err, data) {
+    fs.readFile(filename, function (err, data) {
         if (err) {
             res.writeHead(404, {'Content-Type': 'text/html'});
             return res.end("404 Not Found");
@@ -86,17 +85,17 @@ function submitColor(req, res) {
     var channels = JSON.parse(fs.readFileSync("settings.json")).rgbchannels;
 
     var body = '';
-    req.on('data', function(data) {
+    req.on('data', function (data) {
         body += data;
         console.log('Partial body: ' + body);
     });
-    req.on('end', function() {
+    req.on('end', function () {
         console.log("Submitted color " + body);
         console.log('Body: ' + body);
         //validate there is more room on the queue
-        if (channels.length <= submittedColors.length){
+        if (channels.length <= submittedColors.length) {
             res.writeHead(500, {'Content-Type': 'application/json'});
-            res.write(JSON.stringify({message:"Too many submittions"}));
+            res.write(JSON.stringify({message: "Too many submittions"}));
             res.end();
             return;
         }
@@ -106,7 +105,8 @@ function submitColor(req, res) {
         submittedColors.push(body);
 
         // save log
-        fs.appendFile("color.log", new Date().toISOString() + "\t" + body + "\n", function(){});
+        fs.appendFile("color.log", new Date().toISOString() + "\t" + body + "\n", function () {
+        });
 
         var data = {};
         data.img = 'map1.png';
@@ -124,37 +124,42 @@ function submitTimer(req, res) {
 
 // Returns the next time to send DMX updates
 function calcNextSend() {
+    var settings = JSON.parse(fs.readFileSync("settings.json"));
+    waittime = Math.max(1, settings.waittime);
 
     var now = new Date();
     var nowSec = now.getUTCSeconds();
     var nowMin = now.getUTCMinutes();
-    var remainingMin = 1-(nowMin%2);
+    var remainingMin = (nowMin % waittime);
 
     var data = {};
     data.minutes = remainingMin;
     data.seconds = 60 - nowSec;
+    console.log("CalcNextSend. waittime:" + waittime + " nowMin:" + nowMin + " nowSec:" + nowSec + " data:" + JSON.stringify(data));
     return data;
 }
 
 // update the settings file
 function submitRgbchannels(req, res) {
-     var body = '';
-        req.on('data', function(data) {
-            body += data;
-            console.log('Partial body: ' + body);
+    var body = '';
+    req.on('data', function (data) {
+        body += data;
+        console.log('Partial body: ' + body);
+    });
+    req.on('end', function () {
+        console.log("Submitted color " + body);
+        console.log('Body: ' + body);
+        res.writeHead(200, {'Content-Type': 'application/json'});
+        var settings = parse(body);
+        settings.rgbchannels = settings.rgbchannels.split(",").map(Number);
+        settings.parkedchannels = settings.parkedchannels.split(",").map(Number);
+        settings.fadetime = parseInt(settings.fadetime);
+        settings.waittime = parseInt(settings.waittime);
+        fs.writeFile("settings.json", JSON.stringify(settings), function () {
         });
-        req.on('end', function() {
-            console.log("Submitted color " + body);
-            console.log('Body: ' + body);
-            res.writeHead(200, {'Content-Type': 'application/json'});
-            var settings = parse(body);
-            settings.rgbchannels = settings.rgbchannels.split(",").map(Number);
-            settings.parkedchannels = settings.parkedchannels.split(",").map(Number);
-            settings.fadetime = parseInt(settings.fadetime);
-            fs.writeFile("settings.json", JSON.stringify(settings), function(){});
-            res.write("Success");
-            res.end();
-        })
+        res.write("Success");
+        res.end();
+    })
 }
 
 // get the settings file for the admin page
@@ -167,22 +172,22 @@ function currentRgbchannels(req, res) {
 
 
 // send dmxOutput to ola
-function sendRgbDmx(){
+function sendRgbDmx() {
     // console.log("sending DMX update");
 
-    var universe=0;
+    var universe = 0;
     var url = 'http://localhost:9090/set_dmx';
-    var data = "u="+universe+"&d="+dmxOutput.join(",");
+    var data = "u=" + universe + "&d=" + dmxOutput.join(",");
 
 //    require('request').debug = true
 
     var clientServerOptions = {
-            uri: url,
-            body:  data,
-            method: 'POST',
-          headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        uri: url,
+        body: data,
+        method: 'POST',
+        headers: {'content-type': 'application/x-www-form-urlencoded'},
 
-        };
+    };
     request(clientServerOptions, function (error, response) {
 //        console.log(error,response);
         return;
@@ -191,16 +196,16 @@ function sendRgbDmx(){
 }
 
 
-function setupTransitions(){
+function setupTransitions() {
     var time = calcNextSend();
     // how long between sending the queue to the lights
-   setTimeout(setupTransitions, (time.minutes * 60 + time.seconds) * 1000);
+    setTimeout(setupTransitions, (time.minutes * 60 + time.seconds) * 1000);
     // setTimeout(setupTransitions, 30000);
     runTransition();
 }
 
 //Create the final dmx value array
-function runTransition(){
+function runTransition() {
     transitionFinishDmx = dmxOutput.slice(0);
     var settings = JSON.parse(fs.readFileSync("settings.json"));
 
@@ -209,9 +214,9 @@ function runTransition(){
     var fixtureMap = []; // value of the r channels
 
     // randomize the fixture placement of submitted colors
-    while(fixtureMap.length < submittedColors.length){
+    while (fixtureMap.length < submittedColors.length) {
         var randFixture = fixtures[Math.floor(Math.random() * fixtures.length)];
-        if(!fixtureMap.includes(randFixture)){
+        if (!fixtureMap.includes(randFixture)) {
             fixtureMap.push(randFixture);
         }
     }
@@ -219,27 +224,27 @@ function runTransition(){
 
 
     var i = 0;
-    for(var value of submittedColors) {
+    for (var value of submittedColors) {
         var color = JSON.parse(value);
-        transitionFinishDmx[fixtureMap[i]-1] = color.r;
+        transitionFinishDmx[fixtureMap[i] - 1] = color.r;
         transitionFinishDmx[fixtureMap[i]] = color.g;
-        transitionFinishDmx[fixtureMap[i]+1] = color.b;
-        transitionFinishDmx[fixtureMap[i]+2] = color.w;
+        transitionFinishDmx[fixtureMap[i] + 1] = color.b;
+        transitionFinishDmx[fixtureMap[i] + 2] = color.w;
         i++;
     }
 
     //clear submitted colors
     submittedColors = [];
 
-    console.log("now  dmx:"+dmxOutput);
-    console.log("goal dmx:"+transitionFinishDmx);
+    console.log("now  dmx:" + dmxOutput);
+    console.log("goal dmx:" + transitionFinishDmx);
 
     numOfSteps = fadeStepsPerSec * settings.fadetime;
 
     // calculate the incremental values
-    i=0;
-    while(i<dmxOutput.length){
-        incrementalDiff[i] = (transitionFinishDmx[i]-dmxOutput[i])/numOfSteps;
+    i = 0;
+    while (i < dmxOutput.length) {
+        incrementalDiff[i] = (transitionFinishDmx[i] - dmxOutput[i]) / numOfSteps;
         i++;
     }
     numOfStepsLeft = numOfSteps;
@@ -250,43 +255,43 @@ function runTransition(){
 }
 
 // start the fade ball rolling, called every 3min then every ~100ms
-function startFade(){
+function startFade() {
 
-    if(numOfStepsLeft>2) {
+    if (numOfStepsLeft > 2) {
         numOfStepsLeft--;
         fade();
-        setTimeout(startFade, 1000/fadeStepsPerSec);
+        setTimeout(startFade, 1000 / fadeStepsPerSec);
     } else {
-        var i=0;
-        while(i<dmxOutput.length){
-            dmxOutput[i]=transitionFinishDmx[i];
+        var i = 0;
+        while (i < dmxOutput.length) {
+            dmxOutput[i] = transitionFinishDmx[i];
             i++;
         }
     }
 }
 
 // run one incrementalDiff, executes every ~100ms
-function fade(){
-    var i=0;
-    while(i<dmxOutput.length){
-        dmxOutput[i]+=incrementalDiff[i];
+function fade() {
+    var i = 0;
+    while (i < dmxOutput.length) {
+        dmxOutput[i] += incrementalDiff[i];
         i++;
     }
 }
 
-function initDmx(){
+function initDmx() {
     var settings = JSON.parse(fs.readFileSync("settings.json"));
 
 
     //fill array with 0s
-   dmxOutput = new Array(512).fill(0);
+    dmxOutput = new Array(512).fill(0);
 
     //setup parked channels
-    for(let item of settings.parkedchannels) {
+    for (let item of settings.parkedchannels) {
         dmxOutput[item - 1] = 255;
     }
     //set rgb ones to white
-    for(let value of settings.rgbchannels) {
+    for (let value of settings.rgbchannels) {
         dmxOutput[value - 1] = 255; //r
         dmxOutput[value] = 255; //g
         dmxOutput[value + 1] = 255; //b

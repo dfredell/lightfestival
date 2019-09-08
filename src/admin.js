@@ -28,7 +28,8 @@ function setupChannels(){
         $("#rgbchannels").val(msg.rgbchannels);
         $("#parkedchannels").val(msg.parkedchannels);
         $("#fadetime").val(msg.fadetime);
+        $("#waittime").val(msg.waittime);
     });
 }
 
-module.exports = onload();
+module.exports = onload;
