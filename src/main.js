@@ -6,8 +6,9 @@ const invert = require('invert-color');
 require("./admin.js");
 
 var picker;
+var white = 0;
 
-$(document).ready(function() {
+$(document).ready(function () {
 
     window.console.log("Starting color picker");
     openFullscreen(document.body);
@@ -44,20 +45,22 @@ function getCssColor(color) {
 }
 
 function updateColors() {
-    var color = picker.getColor(true);
+    var color = saturationRgbWhite();
+    // var color = picker.getColor(true);
     var cssColor = getCssColor(color);
-    $(".drag-bar").css('background-color', picker.getColor());
+    $(".drag-bar").css('background-color', cssColor);
     $(".drag-pointer,#send-color").css('background-color', cssColor);
-    $("#send-color").css('color','white');
+    $("#send-color").css('color', 'white');
     $("#send-color").attr("disabled", false);
-    $(".value-container").css('background-image','linear-gradient(to right, #000000 0%, '+topColor()+' 100%)');
+    $(".value-container").css('background-image', 'linear-gradient(to left, #ffffff 0%, ' + topColor() + ' 100%)');
 }
 
 function setupPicker() {
-    if (picker != null){
+    setTimeout(setupPickerDelay, 100);
+    if (picker != null) {
         picker.initColor('rgb(255,255,255)');
-        $("#send-color").css('color','gray');
-        $("#send-color").css('background-color','black');
+        $("#send-color").css('color', 'gray');
+        $("#send-color").css('background-color', 'black');
         $("#send-color").attr("disabled", true);
         return;
     }
@@ -75,10 +78,37 @@ function setupPicker() {
         onChange: function (c) {
             // console.log('change', c);
             updateColors();
-            console.log(rgbToRgbw());
+            // console.log(rgbToRgbw());
+            console.log(saturationRgbWhite());
         }
     });
 
+}
+
+// setup white drag bar after the rest of the page is set
+function setupPickerDelay() {
+    var element = $('#drag-bar')[0];
+    var options = {
+        grid: 10,
+        onDrag: function (e) {
+            // window.console.log(e);
+            white = getDragPercent() * 255;
+            updateColors();
+        },
+        limit: {
+            x: [0, $("#drag-bar-container").width() - $('#drag-bar').width() - 4],
+            y: $('#drag-bar').position().top
+        }
+    };
+    var draggable = require("draggable");
+
+    var dragBar = new draggable(element, options);
+
+    // clicking anywhere on the bar snaps the selector to click position
+    $("#drag-bar-container").click( function(event) {
+        $("#drag-bar").css( {position:"absolute", left: event.pageX-($('#drag-bar').width()/2)});
+        updateColors();
+    });
 }
 
 function getLocalTime() {
@@ -136,7 +166,8 @@ function setupTimer() {
 }
 
 function submitColor() {
-    var color = picker.getColor(true);
+    // var color = picker.getColor(true);
+    var color = saturationRgbWhite();
     var cssColor = getCssColor(color);
     window.console.log("Verify color" + JSON.stringify(color));
     // window.location.replace('verify?color=' + color.r +"");
@@ -144,14 +175,16 @@ function submitColor() {
     $("#verify-color").show();
     $("#verify-color").css("background-color", cssColor);
     $(".verify-color-text,p.timer").css("color", invert(color));
+    $("#show-color").css("background-color", cssColor);
+    $("#show-color-error").css("background-color", cssColor);
 }
 
 function setupEnter() {
-    $('#enter-button').on('click',function () {
+    $('#enter-button').on('click', function () {
         $('#enter-screen').hide();
         $('#select-color').show();
         $("p.timer").show();
-        $("p.timer").css('color','white');
+        $("p.timer").css('color', 'white');
         setupPicker();
     });
 }
@@ -161,7 +194,7 @@ function setupSubmit() {
 }
 
 function setupBodyClick() {
-    $('#enter-screen').on('click', function(){
+    $('#enter-screen').on('click', function () {
         openFullscreen(document.body);
     });
 }
@@ -174,18 +207,17 @@ function setupVerify() {
 function verifyNo() {
     $("#select-color").show();
     $("#verify-color").hide();
-    $("p.timer").css('color','white');
+    $("p.timer").css('color', 'white');
 }
 
 /**
  * User submits their color choice
  */
 function verifyYes() {
-    var color = picker.getColor(true);
+    // var color = picker.getColor(true);
+    var color = saturationRgbWhite();
     var cssColor = getCssColor(color);
     window.console.log("Submit color rgb  " + JSON.stringify(color));
-    let colorRgbw = rgbToRgbw();
-    window.console.log("Submit color rgbw " + JSON.stringify(colorRgbw));
     $("#show-color").css("background-color", cssColor);
     $("#show-color-error").css("background-color", cssColor);
     $.ajax({
@@ -193,7 +225,7 @@ function verifyYes() {
         contentType: 'application/json',
         method: 'POST',
         json: 'json',
-        data: JSON.stringify(colorRgbw),
+        data: JSON.stringify(color),
         success: function (msg) {
             $("#verify-color").hide();
             $("#show-color").show();
@@ -216,9 +248,9 @@ function verifyYes() {
 }
 
 // c color, w white
-function calcColor(c,w){
+function calcColor(c, w) {
     // Result: DMX R=100+(255-100)/2=177 G=155 + (255-155)/2=205 B= 255 + (255-255)/2= 255 W152
-    return parseInt(c+(255-c)*w);
+    return parseInt(c + (255 - c) * w);
 }
 
 function setupPositionImage() {
@@ -237,21 +269,59 @@ function pad(num, size) {
     return s;
 }
 
+/**
+ * Result: DMX R=100+(255-100)/2=177 G=155 + (255-155)/2=205 B= 255 + (255-255)/2= 255 W152
+ * Screen R=177 G=205 B= 255
+ * @returns {*}
+ */
+function saturationRgbWhite() {
+    var color = picker.getColor(true);
+    color.r = calcColor(color.r, getDragPercent());
+    color.g = calcColor(color.g, getDragPercent());
+    color.b = calcColor(color.b, getDragPercent());
+    color.w = getDragPercent() * 255;
+    return color;
+}
+
+// c color, w white
+function calcColor(c, w) {
+    // Result: DMX R=100+(255-100)/2=177 G=155 + (255-155)/2=205 B= 255 + (255-255)/2= 255 W152
+    return parseInt(c + (255 - c) * w);
+}
+
+var cachePerc = 0;
+
+// Return the percentage of the drag bar position
+function getDragPercent() {
+    var perc = $("#drag-bar").position().left / ($("#drag-bar-container").width() - $("#drag-bar").width());
+    if (Number.isNaN(perc) || $("#drag-bar-container").width() === 0) {
+        return cachePerc;
+    }
+    perc = Math.min(1,perc);
+    cachePerc = perc;
+    return perc;
+}
 
 /**
  * https://stackoverflow.com/questions/40312216/converting-rgb-to-rgbw/40318604#40318604
  */
-function rgbToRgbw(){
+function rgbToRgbw() {
     var colorPicker = picker.getColor(true);
     var Ri = colorPicker.r;
     var Gi = colorPicker.g;
     var Bi = colorPicker.b;
+
+    // just use the white slide bar, no math
+    return {r: Ri, g: Gi, b: Bi, w: parseInt(white)};
+
+
     //Get the maximum between R, G, and B
     var tM = Math.max(Ri, Math.max(Gi, Bi));
 
 //If the maximum value is 0, immediately return pure black.
-    if(tM === 0)
-    { return { r:0,g: 0, b: 0, w: 0 }; }
+    if (tM === 0) {
+        return {r: 0, g: 0, b: 0, w: 0};
+    }
 
 //This section serves to figure out what the color with 100% hue is
     var multiplier = 255.0 / tM;
@@ -262,7 +332,7 @@ function rgbToRgbw(){
 //This calculates the Whiteness (not strictly speaking Luminance) of the color
     var M = Math.max(hR, Math.max(hG, hB));
     var m = Math.min(hR, Math.min(hG, hB));
-    var Luminance = ((M + m) / 2.0 - 127.5) * (255.0/127.5) / multiplier;
+    var Luminance = ((M + m) / 2.0 - 127.5) * (255.0 / 127.5) / multiplier;
 
 //Calculate the output values
     var Wo = parseInt(Luminance);
@@ -279,14 +349,14 @@ function rgbToRgbw(){
     if (Bo > 255) Bo = 255;
     if (Ro > 255) Ro = 255;
     if (Go > 255) Go = 255;
-    return { r :Ro, g : Go, b : Bo, w : Wo };
+    return {r: Ro, g: Go, b: Bo, w: Wo};
 }
 
 /**
  * figure out the brightest color values
  * @returns {string} css
  */
-function topColor(){
+function topColor() {
 
     var colorPicker = picker.getColor(true);
     var Ri = colorPicker.r;

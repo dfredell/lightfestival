@@ -107,20 +107,26 @@ a.enter {
     height: 100%;
 }
 #color-container .codemirror-colorpicker.macos .value > .value-container {
-    height: 3em;
-    /*background-image: linear-gradient(to right, #aaaaaa 0%, rgba(255, 255, 255, 0) 100%);*/
     display: none;
 }
-#color-container .codemirror-colorpicker.macos .value > .value-container .drag-bar {
+
+.value .value-container {
+    height: 3em;
+    background-image: linear-gradient(to right, #000000 0%, rgba(255, 255, 255, 0) 100%);
+    margin: 0;
+    padding: 0 0 8px 0;
+}
+
+.value .value-container .drag-bar {
     width: 2em;
-    border: 2px dashed white;
-    background-color: rgb(177,177,177);
+    border: 2px dashed gray;
+    background-color: rgb(255,255,255);
 
     /*make square*/
     border-radius: 0;
     height: 3em;
+    margin: 0;
 }
-
 #color-container .codemirror-colorpicker.macos .colorpicker-body .wheel .drag-pointer {
     width: 4em;
     height: 4em;
