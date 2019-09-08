@@ -105,7 +105,7 @@ function submitColor(req, res) {
         submittedColors.push(body);
 
         // save log
-        fs.appendFile("color.log", new Date().toISOString() + "\t" + body + "\n", function () {
+        fs.appendFile("colorSubmitted.log", new Date().toISOString() + "\t" + body + "\n", function () {
         });
 
         var data = {};
@@ -238,6 +238,11 @@ function runTransition() {
 
     console.log("now  dmx:" + dmxOutput);
     console.log("goal dmx:" + transitionFinishDmx);
+
+
+    // save log
+    fs.appendFile("colorOutput.log", new Date().toISOString() + "\t" + transitionFinishDmx + "\n", function () {
+    });
 
     numOfSteps = fadeStepsPerSec * settings.fadetime;
 
