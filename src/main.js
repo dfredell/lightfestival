@@ -58,7 +58,9 @@ function updateColors() {
 function setupPicker() {
     setTimeout(setupPickerDelay, 100);
     if (picker != null) {
+        // Reset the colors
         picker.initColor('rgb(255,255,255)');
+        $("#drag-bar").css( {position:"absolute", left: 0});
         $("#send-color").css('color', 'gray');
         $("#send-color").css('background-color', 'black');
         $("#send-color").attr("disabled", true);
