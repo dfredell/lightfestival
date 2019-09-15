@@ -10,9 +10,9 @@ var white = 0;
 
 $(document).ready(function () {
     draggable = require("draggable");
+    $.ajaxSetup({ cache: false });
 
     window.console.log("Starting color picker");
-    openFullscreen(document.body);
     setupEnter();
     setupBodyClick();
 
@@ -20,6 +20,7 @@ $(document).ready(function () {
         setupTimer();
         setupSubmit();
         setupVerify();
+        openFullscreen(document.body);
     }
 
     if ($('#position-image').length) {

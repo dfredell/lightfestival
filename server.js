@@ -39,19 +39,19 @@ const mimeTypes = {
 
 
 const server = http.createServer(function (req, res) {
-    if (req.url === '/submitColor') {
+    if (req.url.includes('/submitColor')) {
         submitColor(req, res);
         return;
-    } else if (req.url === '/timer') {
+    } else if (req.url.includes('/timer')) {
         submitTimer(req, res);
         return;
-    } else if (req.url === '/currentrgbchannels') {
+    } else if (req.url.includes('/currentrgbchannels')) {
         currentRgbchannels(req, res);
         return;
-    } else if (req.url === '/rgbchannels') {
+    } else if (req.url.includes('/rgbchannels')) {
         submitRgbchannels(req, res);
         return;
-    } else if (req.url === '/panic') {
+    } else if (req.url.includes('/panic')) {
         initDmx();
         res.write("Success");
         res.end();
