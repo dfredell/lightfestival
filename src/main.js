@@ -4,11 +4,12 @@ var $ = require('jquery');
 window.jquery = $;
 const invert = require('invert-color');
 require("./admin.js");
-
+var draggable;
 var picker;
 var white = 0;
 
 $(document).ready(function () {
+    draggable = require("draggable");
 
     window.console.log("Starting color picker");
     openFullscreen(document.body);
@@ -64,6 +65,8 @@ function setupPicker() {
         $("#send-color").css('color', 'gray');
         $("#send-color").css('background-color', 'black');
         $("#send-color").attr("disabled", true);
+        // Reset white bar drag selector
+        setupPickerDelay();
         return;
     }
     picker = new CodeMirrorColorPicker.create({
@@ -89,26 +92,44 @@ function setupPicker() {
 
 // setup white drag bar after the rest of the page is set
 function setupPickerDelay() {
-    var element = $('#drag-bar')[0];
+    let $dragBar = $('#drag-bar');
+    let $drag = $("#drag-bar-container");
+
+    // remove any existing listeners
+    $dragBar.off();
+    $drag.off();
+
+    var element = $dragBar[0];
     var options = {
-        grid: 10,
+        grid: 1,
         onDrag: function (e) {
             // window.console.log(e);
             white = getDragPercent() * 255;
             updateColors();
         },
         limit: {
-            x: [0, $("#drag-bar-container").width() - $('#drag-bar').width() - 4],
-            y: $('#drag-bar').position().top
+            x: [0, $drag.width() - $dragBar.width() - 4],
+            y: $drag.position().top
         }
     };
-    var draggable = require("draggable");
+    new draggable(element, options);
 
-    var dragBar = new draggable(element, options);
+    // Setup size
+    $dragBar.css( {position:"absolute",
+        left: 0,
+        top: $drag.position().top,
+        height: $drag.height(),
+        width: "2em"
+    });
 
     // clicking anywhere on the bar snaps the selector to click position
-    $("#drag-bar-container").click( function(event) {
-        $("#drag-bar").css( {position:"absolute", left: event.pageX-($('#drag-bar').width()/2)});
+    $drag.click( function(event) {
+        $dragBar.css( {
+            position:"absolute",
+            left: event.pageX-($dragBar.width()/2),
+            top: $drag.position().top
+        });
+        // window.console.log("White snap " + event.pageX);
         updateColors();
     });
 }
@@ -235,7 +256,7 @@ function verifyYes() {
             setTimeout(function () {
                 $('#enter-screen').show();
                 $('#show-color').hide();
-            }, 10000)
+            }, 7000)
         },
         error: function (msg) {
             $("#verify-color").hide();

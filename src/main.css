@@ -113,8 +113,8 @@ a.enter {
 .value .value-container {
     height: 3em;
     background-image: linear-gradient(to right, #000000 0%, rgba(255, 255, 255, 0) 100%);
-    margin: 0;
-    padding: 0 0 8px 0;
+    margin: 2px 0 2px 0;
+    padding: 0 0 0 0;
 }
 
 .value .value-container .drag-bar {
