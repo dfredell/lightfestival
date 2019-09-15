@@ -117,7 +117,13 @@ function submitColor(req, res) {
 
 // get the server's version of a 3min countdown
 function submitTimer(req, res) {
-    res.writeHead(200, {'Content-Type': 'application/json'});
+    res.writeHead(200, {
+        'Content-Type': 'application/json',
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Pragma": "no-cache",
+        "Expires": 0,
+    });
+
     res.write(JSON.stringify(calcNextSend()));
     res.end();
 }
@@ -164,7 +170,12 @@ function submitRgbchannels(req, res) {
 
 // get the settings file for the admin page
 function currentRgbchannels(req, res) {
-    res.writeHead(200, {'Content-Type': 'application/json'});
+    res.writeHead(200, {
+        'Content-Type': 'application/json',
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Pragma": "no-cache",
+        "Expires": 0,
+    });
     var content = fs.readFileSync("settings.json");
     res.write((content));
     res.end();

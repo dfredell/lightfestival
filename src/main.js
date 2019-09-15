@@ -278,11 +278,16 @@ function pad(num, size) {
  */
 function saturationRgbWhite() {
     var color = picker.getColor(true);
-    color.r = calcColor(color.r, getDragPercent());
-    color.g = calcColor(color.g, getDragPercent());
-    color.b = calcColor(color.b, getDragPercent());
-    color.w = getDragPercent() * 255;
+    color.r = clamp(calcColor(color.r, getDragPercent()));
+    color.g = clamp(calcColor(color.g, getDragPercent()));
+    color.b = clamp(calcColor(color.b, getDragPercent()));
+    color.w = clamp(getDragPercent() * 255);
     return color;
+}
+
+
+function clamp(value) {
+    return Math.min(Math.max(value, 0), 255);
 }
 
 // c color, w white
