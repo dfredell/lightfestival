@@ -120,7 +120,7 @@ function setupPickerDelay() {
         left: 0,
         top: $drag.position().top,
         height: $drag.height(),
-        width: "2em"
+        width: "32px"
     });
 
     // clicking anywhere on the bar snaps the selector to click position
@@ -303,7 +303,7 @@ function saturationRgbWhite() {
     color.r = clamp(calcColor(color.r, getDragPercent()));
     color.g = clamp(calcColor(color.g, getDragPercent()));
     color.b = clamp(calcColor(color.b, getDragPercent()));
-    color.w = clamp(getDragPercent() * 255);
+    color.w = clamp(parseInt(getDragPercent() * 255));
     return color;
 }
 

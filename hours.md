@@ -11,3 +11,5 @@
 2019-09-07 1h Back to the design board for how to handle White DMX
 2019-09-08 1h Use white bar for saturation
 2019-09-08 20m Reset white bar for saturation for second user
+2019-09-15 2h Polish white drag, AJAX caching
+2019-09-16 1h Load previous DMX values from file

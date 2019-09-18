@@ -10,9 +10,11 @@ if (os.hostname().indexOf('manjaro') > 0) {
 const fs = require('fs');
 const url = require('url');
 var requirejs = require('requirejs');
-const path = require('path') // For working with file and directory paths
+const path = require('path'); // For working with file and directory paths
 var request = require('request');
 const {parse} = require('querystring');
+const readLastLines = require('read-last-lines');
+
 var submittedColors = [];
 var dmxOutput = [];
 var incrementalDiff = [];
@@ -207,12 +209,16 @@ function sendRgbDmx() {
 }
 
 
+var firstRun = true;
 function setupTransitions() {
     var time = calcNextSend();
     // how long between sending the queue to the lights
     setTimeout(setupTransitions, (time.minutes * 60 + time.seconds) * 1000);
     // setTimeout(setupTransitions, 30000);
-    runTransition();
+    if (!firstRun) {
+        runTransition();
+    }
+    firstRun = false;
 }
 
 //Create the final dmx value array
@@ -231,7 +237,7 @@ function runTransition() {
             fixtureMap.push(randFixture);
         }
     }
-    console.log("fixture map " + fixtureMap);
+    // console.log("fixture map " + fixtureMap);
 
 
     var i = 0;
@@ -247,8 +253,8 @@ function runTransition() {
     //clear submitted colors
     submittedColors = [];
 
-    console.log("now  dmx:" + dmxOutput);
-    console.log("goal dmx:" + transitionFinishDmx);
+    // console.log("now  dmx:" + dmxOutput);
+    // console.log("goal dmx:" + transitionFinishDmx);
 
 
     // save log
@@ -265,7 +271,8 @@ function runTransition() {
     }
     numOfStepsLeft = numOfSteps;
 
-    console.log("incr dmx:" + incrementalDiff);
+    // console.log("incr dmx:" + incrementalDiff);
+    // console.log("numOfSteps: " + numOfSteps + " fadeStepsPerSec: " + fadeStepsPerSec);
 
     startFade();
 }
@@ -313,6 +320,24 @@ function initDmx() {
         dmxOutput[value + 1] = 255; //b
         dmxOutput[value + 2] = 255; //w
     }
+
+    // load the previous DMX values
+    readLastLines.read('colorOutput.log', 1)
+        .then((lines) => {
+                console.log(dmxOutput);
+                if (lines.length > 500) {
+                    dmxOutput = lines.split("\t")[1].split(",");
+                    console.log("Loaded DMX from file");
+                    var i = 0;
+                    while (i < dmxOutput.length) {
+                        dmxOutput[i] = parseInt(dmxOutput[i]);
+                        i++;
+                    }
+                    console.log(dmxOutput);
+                }
+            }
+        );
+
 }
 
 // The signals we want to handle
