@@ -154,7 +154,7 @@ function getTime() {
     var time = {};
     // ask server for time
     $.ajax({
-        url: '/timer',
+        url: '/timer/' + new Date().getTime(),
         contentType: 'application/json',
         method: 'GET',
         json: 'json',
@@ -178,12 +178,15 @@ function setupTimer() {
     timer.start({countdown: true, startValues: {minutes: time.minutes, seconds: time.seconds}});
     var text = timer.getTimeValues().minutes + ":" + pad(timer.getTimeValues().seconds, 2);
     $(".timer").html(text);
-    timer.addEventListener('secondsUpdated', function (e) {
+    var secondsUpdated = function (e) {
         var text = timer.getTimeValues().minutes + ":" + pad(timer.getTimeValues().seconds, 2);
         $(".timer").html(text);
-    });
+    };
+    timer.addEventListener('secondsUpdated', secondsUpdated);
     timer.addEventListener('targetAchieved', function (e) {
         timer.stop();
+        timer.removeEventListener('targetAchieved', this);
+        timer.removeEventListener('secondsUpdated', secondsUpdated);
         time = null;
         setupTimer();
     });
@@ -263,10 +266,12 @@ function verifyYes() {
             $("#verify-color").hide();
             $("#show-color-error").show();
             $("p.timer").hide();
+            var sec = (getTime().minutes * 60 + getTime().seconds);
+            window.console.log("All colors picked waiting " + sec + " seconds");
             setTimeout(function () {
                 $('#enter-screen').show();
                 $('#show-color-error').hide();
-            }, (getTime().minutes * 60 + getTime().seconds) * 1000)
+            }, sec * 1000)
         }
     });
 }

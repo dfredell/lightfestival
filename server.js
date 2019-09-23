@@ -54,7 +54,7 @@ const server = http.createServer(function (req, res) {
         submitRgbchannels(req, res);
         return;
     } else if (req.url.includes('/panic')) {
-        initDmx();
+        whiteDmx();
         res.write("Success");
         res.end();
         return;
@@ -210,6 +210,7 @@ function sendRgbDmx() {
 
 
 var firstRun = true;
+
 function setupTransitions() {
     var time = calcNextSend();
     // how long between sending the queue to the lights
@@ -302,7 +303,10 @@ function fade() {
     }
 }
 
-function initDmx() {
+/**
+ * Start the parked channels and all channels to full
+ */
+function whiteDmx() {
     var settings = JSON.parse(fs.readFileSync("settings.json"));
 
 
@@ -320,6 +324,11 @@ function initDmx() {
         dmxOutput[value + 1] = 255; //b
         dmxOutput[value + 2] = 255; //w
     }
+}
+
+function initDmx() {
+
+    whiteDmx();
 
     // load the previous DMX values
     readLastLines.read('colorOutput.log', 1)
