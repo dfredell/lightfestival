@@ -266,7 +266,7 @@ function verifyYes() {
             $("#verify-color").hide();
             $("#show-color-error").show();
             $("p.timer").hide();
-            var sec = (getTime().minutes * 60 + getTime().seconds);
+            var sec = (getTime().minutes * 60) + getTime().seconds;
             window.console.log("All colors picked waiting " + sec + " seconds");
             setTimeout(function () {
                 $('#enter-screen').show();

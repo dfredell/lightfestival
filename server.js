@@ -138,7 +138,7 @@ function calcNextSend() {
     var now = new Date();
     var nowSec = now.getUTCSeconds();
     var nowMin = now.getUTCMinutes();
-    var remainingMin = (nowMin % waittime);
+    var remainingMin = waittime - (nowMin % waittime) - 1;
 
     var data = {};
     data.minutes = remainingMin;
