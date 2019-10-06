@@ -16,3 +16,4 @@
 2019-09-16 1h Load previous DMX values from file
 
 ## HUG
+2019-10-06 1.5h split services, start firebase

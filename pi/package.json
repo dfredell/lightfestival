@@ -4,24 +4,20 @@
   "description": "Application Description",
   "main": "server.js",
   "scripts": {
-    "start": "concurrently --kill-others \"watchify src/main.js --poll=500 -v -o target/bundle.js\" \"node server.js\""
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/npm/npm.git"
   },
   "dependencies": {
-    "codemirror": "^5.49.0",
-    "codemirror-colorpicker": "^1.9.52",
-    "draggable": "^4.2.0",
-    "easytimer.js": "^3.2.0",
-    "invert-color": "^2.0.0",
+    "firebase-admin": "^8.6.0",
+    "is-docker": "^2.0.0",
     "jquery": "^3.4.1",
     "querystring": "^0.2.0",
     "read-last-lines": "^1.7.1",
     "request": "^2.88.0",
-    "requirejs": "^2.3.6",
-    "watchify": "^3.11.1"
+    "requirejs": "^2.3.6"
   },
   "start": "node server.js",
   "devDependencies": {

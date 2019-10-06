@@ -1,10 +1,10 @@
 /*server.js*/
 const http = require('http');
 const hostname = '127.0.0.1';
-const os = require('os');
+const isDocker = require('is-docker');
 var port = 80;
-console.log("Starting with os " + os.release());
-if (os.hostname().indexOf('manjaro') > 0) {
+console.log("Starting with isDocker: " + isDocker());
+if (!isDocker()) {
     port = 8080;
 }
 const fs = require('fs');
@@ -14,6 +14,14 @@ const path = require('path'); // For working with file and directory paths
 var request = require('request');
 const {parse} = require('querystring');
 const readLastLines = require('read-last-lines');
+
+// Firebase
+var firebase = require('firebase-admin');
+var serviceAccount = require("./lightfestival-firebase-adminsdk.json");
+firebase.initializeApp({
+    credential: firebase.credential.cert(serviceAccount),
+    databaseURL: "https://lightfestival.firebaseio.com"
+});
 
 var submittedColors = [];
 var dmxOutput = [];
@@ -184,7 +192,9 @@ function currentRgbchannels(req, res) {
 }
 
 
-// send dmxOutput to ola
+/**
+ * send dmxOutput to ola every 100ms
+ */
 function sendRgbDmx() {
     // console.log("sending DMX update");
 
@@ -209,54 +219,30 @@ function sendRgbDmx() {
 }
 
 
-var firstRun = true;
-
-function setupTransitions() {
-    var time = calcNextSend();
-    // how long between sending the queue to the lights
-    setTimeout(setupTransitions, (time.minutes * 60 + time.seconds) * 1000);
-    // setTimeout(setupTransitions, 30000);
-    if (!firstRun) {
-        runTransition();
-    }
-    firstRun = false;
-}
-
-//Create the final dmx value array
-function runTransition() {
+/**
+ * Create the final dmx value array and start fade/ transition to it
+ */
+function runTransition(nextColor) {
+    console.log(`Fading to ${JSON.stringify(nextColor)}`);
     transitionFinishDmx = dmxOutput.slice(0);
     var settings = JSON.parse(fs.readFileSync("settings.json"));
 
-    var submitCount = submittedColors.length;
+    // shift all the running lights down one fixture
     var fixtures = settings.rgbchannels;
-    var fixtureMap = []; // value of the r channels
-
-    // randomize the fixture placement of submitted colors
-    while (fixtureMap.length < submittedColors.length) {
-        var randFixture = fixtures[Math.floor(Math.random() * fixtures.length)];
-        if (!fixtureMap.includes(randFixture)) {
-            fixtureMap.push(randFixture);
-        }
-    }
-    // console.log("fixture map " + fixtureMap);
-
-
-    var i = 0;
-    for (var value of submittedColors) {
-        var color = JSON.parse(value);
-        transitionFinishDmx[fixtureMap[i] - 1] = color.r;
-        transitionFinishDmx[fixtureMap[i]] = color.g;
-        transitionFinishDmx[fixtureMap[i] + 1] = color.b;
-        transitionFinishDmx[fixtureMap[i] + 2] = color.w;
-        i++;
+    for (var i = fixtures.length; i > 0; i--) {
+        var fixtureA = fixtures[i];
+        var fixtureB = fixtures[i - 1];
+        transitionFinishDmx[fixtureA - 1] = transitionFinishDmx[fixtureB - 1];
+        transitionFinishDmx[fixtureA] = transitionFinishDmx[fixtureB];
+        transitionFinishDmx[fixtureA + 1] = transitionFinishDmx[fixtureB + 1];
+        transitionFinishDmx[fixtureA + 2] = transitionFinishDmx[fixtureB + 2];
     }
 
-    //clear submitted colors
-    submittedColors = [];
-
-    // console.log("now  dmx:" + dmxOutput);
-    // console.log("goal dmx:" + transitionFinishDmx);
-
+    // add the new light as fixture one
+    transitionFinishDmx[fixtures[0] - 1] = nextColor.r;
+    transitionFinishDmx[fixtures[0]] = nextColor.g;
+    transitionFinishDmx[fixtures[0] + 1] = nextColor.b;
+    transitionFinishDmx[fixtures[0] + 2] = nextColor.w;
 
     // save log
     fs.appendFile("colorOutput.log", new Date().toISOString() + "\t" + transitionFinishDmx + "\n", function () {
@@ -272,6 +258,8 @@ function runTransition() {
     }
     numOfStepsLeft = numOfSteps;
 
+    // console.log("start dmx:" + dmxOutput);
+    // console.log("end dmx:" + transitionFinishDmx);
     // console.log("incr dmx:" + incrementalDiff);
     // console.log("numOfSteps: " + numOfSteps + " fadeStepsPerSec: " + fadeStepsPerSec);
 
@@ -345,10 +333,52 @@ function initDmx() {
                     console.log(dmxOutput);
                 }
             }
-        );
+        ).catch(function (err) {
+        console.log(err.message);
+        fs.appendFile("colorOutput.log", "", function () {
+        });
+    });
 
 }
 
+
+/**
+ * Start the Firebase listener
+ */
+function startListeners() {
+    firebase.firestore()
+        .collection('lights')
+        .where("date", ">", new Date())
+        .orderBy('date', 'desc')
+        .onSnapshot(docSnapshot => {
+            console.log(`Received doc snapshot`);
+            docSnapshot.forEach(doc => {
+                console.log(doc.id, '=>', doc.data());
+                processFirebaseDoc(doc);
+            });
+        }, err => {
+            console.log(`Firebase Encountered error: ${err}`);
+        });
+    console.log('New Firebase color notifier started...');
+}
+
+/**
+ * Handle the submitted data from Firerbase
+ * @param doc
+ */
+function processFirebaseDoc(doc) {
+    const dateSec = doc.data().date._seconds;
+    const color = doc.data().color;
+    const epochNowSec = new Date().getTime() / 1000;
+    if (dateSec < epochNowSec) {
+        console.log("Not using old data from " + doc.id);
+        return;
+    }
+    // schedule color change
+    const secWait = dateSec - epochNowSec;
+    setTimeout(runTransition.bind(null, color), secWait);
+    console.log(`Scheduled fade for ${doc.id} to ${color} in ${secWait} seconds`);
+}
 
 // The signals we want to handle
 // NOTE: although it is tempting, the SIGKILL signal (9) cannot be intercepted and handled
@@ -375,4 +405,20 @@ Object.keys(signals).forEach((signal) => {
 
 initDmx();
 sendRgbDmx();
-setupTransitions();
+startListeners();
+
+//runTransition({r:10,g:30,b:60,w:90});
+//setTimeout(runTransition.bind(null, {r:20,g:40,b:70,w:100}), 11000);
+
+//
+// let db = firebase.firestore();
+//
+// db.collection('lights').get()
+//     .then((snapshot) => {
+//         snapshot.forEach((doc) => {
+//             console.log(doc.id, '=>', doc.data());
+//         });
+//     })
+//     .catch((err) => {
+//         console.log('Error getting documents', err);
+//     });
