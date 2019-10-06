@@ -64,3 +64,6 @@ typings/
 .idea
 
 target/
+
+
+lightfestival-firebase-adminsdk.json
