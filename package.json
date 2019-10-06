@@ -11,8 +11,8 @@
     "url": "https://github.com/npm/npm.git"
   },
   "dependencies": {
-    "codemirror": "^5.47.0",
-    "codemirror-colorpicker": "^1.9.50",
+    "codemirror": "^5.49.0",
+    "codemirror-colorpicker": "^1.9.52",
     "draggable": "^4.2.0",
     "easytimer.js": "^3.2.0",
     "invert-color": "^2.0.0",
@@ -25,6 +25,6 @@
   },
   "start": "node server.js",
   "devDependencies": {
-    "concurrently": "^4.1.0"
+    "concurrently": "^4.1.2"
   }
 }
