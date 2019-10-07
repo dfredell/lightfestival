@@ -5,7 +5,7 @@ const isDocker = require('is-docker');
 var port = 80;
 console.log("Starting with isDocker: " + isDocker());
 if (!isDocker()) {
-    port = 8080;
+    port = 8081;
 }
 const fs = require('fs');
 const url = require('url');

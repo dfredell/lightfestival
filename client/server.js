@@ -1,10 +1,10 @@
 /*server.js*/
 const http = require('http');
 const hostname = '127.0.0.1';
-const os = require('os');
+const isDocker = require('is-docker');
 var port = 80;
-console.log("Starting with os " + os.release());
-if (os.hostname().indexOf('manjaro') > 0) {
+console.log("Starting with isDocker: " + isDocker());
+if (!isDocker()) {
     port = 8080;
 }
 const fs = require('fs');
@@ -14,6 +14,14 @@ const path = require('path'); // For working with file and directory paths
 var request = require('request');
 const {parse} = require('querystring');
 const readLastLines = require('read-last-lines');
+
+// Firebase
+var firebase = require('firebase-admin');
+var serviceAccount = require("./lightfestival-firebase-adminsdk.json");
+firebase.initializeApp({
+    credential: firebase.credential.cert(serviceAccount),
+    databaseURL: "https://lightfestival.firebaseio.com"
+});
 
 var submittedColors = [];
 var dmxOutput = [];
@@ -104,17 +112,61 @@ function submitColor(req, res) {
 
         res.writeHead(200, {'Content-Type': 'application/json'});
         // add to queue
-        submittedColors.push(body);
+        sendDataToDb(body,res);
 
         // save log
         fs.appendFile("colorSubmitted.log", new Date().toISOString() + "\t" + body + "\n", function () {
         });
-
-        var data = {};
-        data.img = 'map1.png';
-        res.write(JSON.stringify(data));
-        res.end();
     })
+}
+
+/**
+ * Sends a new color up to firebase
+ * @param body
+ * @returns {Promise<string>}
+ */
+function sendDataToDb(body,res) {
+    // Get the most future light time so we know when we can go next
+    let farthestDateSec = 0;
+
+    let queryPromise = firebase.firestore()
+        .collection('lights')
+        .where("date", ">", new Date())
+        .orderBy('date', 'desc')
+        .limit(1)
+        .get()
+        .then(result => {
+            console.log(`Received doc snapshot`);
+            result.forEach(doc => {
+                console.log(doc.id, '=>', doc.data());
+                farthestDateSec=doc.data().date._seconds;
+            });
+        }, err => {
+            console.log(`Firebase Encountered error: ${err}`);
+        });
+
+    // wait for query to finish
+    return Promise.all([queryPromise]).then(()=> {
+
+        // Calc next available time
+        if (farthestDateSec === 0) {
+            farthestDateSec = new Date().getTime() / 1000;
+            farthestDateSec = farthestDateSec % 30 + farthestDateSec;
+        } else {
+            farthestDateSec += 30;
+        }
+
+        // Add new data to firebase
+        var submit = firebase.firestore()
+            .collection('lights')
+            .add({
+                date: firebase.firestore.Timestamp.fromDate(new Date()),
+                color: body
+            });
+        console.log(`Submitted firebase ${JSON.stringify(submit)}`);
+        res.write(new Date(farthestDateSec).toISOString());
+        res.end();
+    });
 }
 
 // get the server's version of a 3min countdown
@@ -184,124 +236,6 @@ function currentRgbchannels(req, res) {
 }
 
 
-// send dmxOutput to ola
-function sendRgbDmx() {
-    // console.log("sending DMX update");
-
-    var universe = 0;
-    var url = 'http://localhost:9090/set_dmx';
-    var data = "u=" + universe + "&d=" + dmxOutput.join(",");
-
-//    require('request').debug = true
-
-    var clientServerOptions = {
-        uri: url,
-        body: data,
-        method: 'POST',
-        headers: {'content-type': 'application/x-www-form-urlencoded'},
-
-    };
-    request(clientServerOptions, function (error, response) {
-//        console.log(error,response);
-        return;
-    });
-    setTimeout(sendRgbDmx, 100);
-}
-
-
-var firstRun = true;
-
-function setupTransitions() {
-    var time = calcNextSend();
-    // how long between sending the queue to the lights
-    setTimeout(setupTransitions, (time.minutes * 60 + time.seconds) * 1000);
-    // setTimeout(setupTransitions, 30000);
-    if (!firstRun) {
-        runTransition();
-    }
-    firstRun = false;
-}
-
-//Create the final dmx value array
-function runTransition() {
-    transitionFinishDmx = dmxOutput.slice(0);
-    var settings = JSON.parse(fs.readFileSync("settings.json"));
-
-    var submitCount = submittedColors.length;
-    var fixtures = settings.rgbchannels;
-    var fixtureMap = []; // value of the r channels
-
-    // randomize the fixture placement of submitted colors
-    while (fixtureMap.length < submittedColors.length) {
-        var randFixture = fixtures[Math.floor(Math.random() * fixtures.length)];
-        if (!fixtureMap.includes(randFixture)) {
-            fixtureMap.push(randFixture);
-        }
-    }
-    // console.log("fixture map " + fixtureMap);
-
-
-    var i = 0;
-    for (var value of submittedColors) {
-        var color = JSON.parse(value);
-        transitionFinishDmx[fixtureMap[i] - 1] = color.r;
-        transitionFinishDmx[fixtureMap[i]] = color.g;
-        transitionFinishDmx[fixtureMap[i] + 1] = color.b;
-        transitionFinishDmx[fixtureMap[i] + 2] = color.w;
-        i++;
-    }
-
-    //clear submitted colors
-    submittedColors = [];
-
-    // console.log("now  dmx:" + dmxOutput);
-    // console.log("goal dmx:" + transitionFinishDmx);
-
-
-    // save log
-    fs.appendFile("colorOutput.log", new Date().toISOString() + "\t" + transitionFinishDmx + "\n", function () {
-    });
-
-    numOfSteps = fadeStepsPerSec * settings.fadetime;
-
-    // calculate the incremental values
-    i = 0;
-    while (i < dmxOutput.length) {
-        incrementalDiff[i] = (transitionFinishDmx[i] - dmxOutput[i]) / numOfSteps;
-        i++;
-    }
-    numOfStepsLeft = numOfSteps;
-
-    // console.log("incr dmx:" + incrementalDiff);
-    // console.log("numOfSteps: " + numOfSteps + " fadeStepsPerSec: " + fadeStepsPerSec);
-
-    startFade();
-}
-
-// start the fade ball rolling, called every 3min then every ~100ms
-function startFade() {
-
-    if (numOfStepsLeft > 2) {
-        numOfStepsLeft--;
-        fade();
-        setTimeout(startFade, 1000 / fadeStepsPerSec);
-    } else {
-        var i = 0;
-        while (i < dmxOutput.length) {
-            dmxOutput[i] = transitionFinishDmx[i];
-            i++;
-        }
-    }
-}
-
-// run one incrementalDiff, executes every ~100ms
-function fade() {
-    var i = 0;
-    while (i < dmxOutput.length) {
-        dmxOutput[i] += incrementalDiff[i];
-        i++;
-    }
-}
 
 /**
  * Start the parked channels and all channels to full
@@ -324,29 +258,6 @@ function whiteDmx() {
         dmxOutput[value + 1] = 255; //b
         dmxOutput[value + 2] = 255; //w
     }
-}
-
-function initDmx() {
-
-    whiteDmx();
-
-    // load the previous DMX values
-    readLastLines.read('colorOutput.log', 1)
-        .then((lines) => {
-                console.log(dmxOutput);
-                if (lines.length > 500) {
-                    dmxOutput = lines.split("\t")[1].split(",");
-                    console.log("Loaded DMX from file");
-                    var i = 0;
-                    while (i < dmxOutput.length) {
-                        dmxOutput[i] = parseInt(dmxOutput[i]);
-                        i++;
-                    }
-                    console.log(dmxOutput);
-                }
-            }
-        );
-
 }
 
 // The signals we want to handle
@@ -372,6 +283,5 @@ Object.keys(signals).forEach((signal) => {
     });
 });
 
-initDmx();
-sendRgbDmx();
-setupTransitions();
+
+// sendDataToDb("{r:10,g:30,b:60,w:90}");

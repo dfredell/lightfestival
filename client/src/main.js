@@ -14,13 +14,11 @@ $(document).ready(function () {
 
     window.console.log("Starting color picker");
     setupEnter();
-    setupBodyClick();
 
     if ($('#color-container').length) {
         setupTimer();
         setupSubmit();
         setupVerify();
-        openFullscreen(document.body);
     }
 
     if ($('#position-image').length) {
@@ -30,17 +28,6 @@ $(document).ready(function () {
 
 });
 
-function openFullscreen(elem) {
-    if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-    } else if (elem.mozRequestFullScreen) { /* Firefox */
-        elem.mozRequestFullScreen();
-    } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
-        elem.webkitRequestFullscreen();
-    } else if (elem.msRequestFullscreen) { /* IE/Edge */
-        elem.msRequestFullscreen();
-    }
-}
 
 function getCssColor(color) {
     return 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
@@ -220,12 +207,6 @@ function setupSubmit() {
     $('#send-color').on('click', submitColor);
 }
 
-function setupBodyClick() {
-    $('#enter-screen').on('click', function () {
-        openFullscreen(document.body);
-    });
-}
-
 function setupVerify() {
     $('#verify-yes').on('click', verifyYes);
     $('#verify-no').on('click', verifyNo);
@@ -256,22 +237,15 @@ function verifyYes() {
         success: function (msg) {
             $("#verify-color").hide();
             $("#show-color").show();
+            $("#color-date").html(msg);
             $("p.timer").hide();
-            setTimeout(function () {
-                $('#enter-screen').show();
-                $('#show-color').hide();
-            }, 7000)
         },
         error: function (msg) {
             $("#verify-color").hide();
-            $("#show-color-error").show();
+            $("#show-color").show();
             $("p.timer").hide();
-            var sec = (getTime().minutes * 60) + getTime().seconds;
+            $("#color-date").html("ERROR");
             window.console.log("All colors picked waiting " + sec + " seconds");
-            setTimeout(function () {
-                $('#enter-screen').show();
-                $('#show-color-error').hide();
-            }, sec * 1000)
         }
     });
 }
