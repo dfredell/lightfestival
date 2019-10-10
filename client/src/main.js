@@ -16,14 +16,12 @@ $(document).ready(function () {
     setupEnter();
 
     if ($('#color-container').length) {
-        setupTimer();
         setupSubmit();
         setupVerify();
     }
 
     if ($('#position-image').length) {
         setupPositionImage();
-        setupTimer();
     }
 
 });
@@ -122,63 +120,6 @@ function setupPickerDelay() {
     });
 }
 
-function getLocalTime() {
-
-    // calc local time
-    var now = new Date();
-    var nowSec = now.getUTCSeconds();
-    var nowMin = now.getUTCMinutes();
-    var remainingMin = 2 - (nowMin % 3);
-
-    var time = {};
-    time.minutes = remainingMin;
-    time.seconds = 60 - nowSec;
-
-}
-
-function getTime() {
-
-    var time = {};
-    // ask server for time
-    $.ajax({
-        url: '/timer/' + new Date().getTime(),
-        contentType: 'application/json',
-        method: 'GET',
-        json: 'json',
-        async: false,
-        success: function (msg) {
-            time = msg;
-        },
-        error: function () {
-            time = getLocalTime();
-        }
-    });
-
-    return time;
-}
-
-function setupTimer() {
-    var time = getTime();
-
-    // setup countdown
-    var timer = new Timer();
-    timer.start({countdown: true, startValues: {minutes: time.minutes, seconds: time.seconds}});
-    var text = timer.getTimeValues().minutes + ":" + pad(timer.getTimeValues().seconds, 2);
-    $(".timer").html(text);
-    var secondsUpdated = function (e) {
-        var text = timer.getTimeValues().minutes + ":" + pad(timer.getTimeValues().seconds, 2);
-        $(".timer").html(text);
-    };
-    timer.addEventListener('secondsUpdated', secondsUpdated);
-    timer.addEventListener('targetAchieved', function (e) {
-        timer.stop();
-        timer.removeEventListener('targetAchieved', this);
-        timer.removeEventListener('secondsUpdated', secondsUpdated);
-        time = null;
-        setupTimer();
-    });
-}
-
 function submitColor() {
     // var color = picker.getColor(true);
     var color = saturationRgbWhite();
@@ -226,8 +167,13 @@ function verifyYes() {
     var color = saturationRgbWhite();
     var cssColor = getCssColor(color);
     window.console.log("Submit color rgb  " + JSON.stringify(color));
+    $("#sending-color").css("background-color", cssColor);
     $("#show-color").css("background-color", cssColor);
     $("#show-color-error").css("background-color", cssColor);
+
+    // show sending... screen
+    $("#verify-color").hide();
+    $("#sending-color").show();
     $.ajax({
         url: '/submitColor',
         contentType: 'application/json',
@@ -235,17 +181,17 @@ function verifyYes() {
         json: 'json',
         data: JSON.stringify(color),
         success: function (msg) {
-            $("#verify-color").hide();
+            $("#sending-color").hide();
             $("#show-color").show();
-            $("#color-date").html(msg);
+            let date = new Date(msg.date);
+            $("#color-date").html(date.toLocaleString());
             $("p.timer").hide();
         },
         error: function (msg) {
-            $("#verify-color").hide();
+            $("#sending-color").hide();
             $("#show-color").show();
             $("p.timer").hide();
             $("#color-date").html("ERROR");
-            window.console.log("All colors picked waiting " + sec + " seconds");
         }
     });
 }

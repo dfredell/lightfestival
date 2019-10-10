@@ -1,6 +1,6 @@
 /*server.js*/
 const http = require('http');
-const hostname = '127.0.0.1';
+const hostname = '0.0.0.0';
 const isDocker = require('is-docker');
 var port = 80;
 console.log("Starting with isDocker: " + isDocker());
@@ -67,13 +67,22 @@ const server = http.createServer(function (req, res) {
         res.end();
         return;
     } else if (req.url === '/') {
-        res.writeHead(302, {'Location': 'src/index.html'});
+        res.writeHead(302, {'Location': 'index.html'});
         return res.end();
     }
     res.statusCode = 200;
     res.setHeader('Content-Type', 'text/plain');
     var q = url.parse(req.url, true);
-    var filename = "." + q.pathname;
+    var filename;
+    if(q.pathname.indexOf("codemirror-colorpicker") > 0) {
+        filename = "./node_modules" + q.pathname;
+    } else if(q.pathname.indexOf("bundle.js") > 0) {
+        filename = "./target" + q.pathname;
+    } else {
+        filename = "./src" + q.pathname;
+    }
+    // security, remove path traversal
+    filename = filename.replace(/\.\./gi,"");
     fs.readFile(filename, function (err, data) {
         if (err) {
             res.writeHead(404, {'Content-Type': 'text/html'});
@@ -86,7 +95,7 @@ const server = http.createServer(function (req, res) {
     });
 
 });
-server.listen(port, function () {
+server.listen(port, hostname, function () {
     console.log('Server running at http://' + hostname + ':' + port + '/');
 });
 
@@ -142,7 +151,8 @@ function sendDataToDb(body,res) {
                 farthestDateSec=doc.data().date._seconds;
             });
         }, err => {
-            console.log(`Firebase Encountered error: ${err}`);
+            console.log(`Firebase load Encountered error: ${err}`);
+            console.log(JSON.stringify(err));
         });
 
     // wait for query to finish
@@ -150,22 +160,31 @@ function sendDataToDb(body,res) {
 
         // Calc next available time
         if (farthestDateSec === 0) {
-            farthestDateSec = new Date().getTime() / 1000;
-            farthestDateSec = farthestDateSec % 30 + farthestDateSec;
+            farthestDateSec = new Date().getTime()/1000;
+            // Round up to the next 30 second block
+            farthestDateSec = farthestDateSec - farthestDateSec % 30 + 30;
         } else {
             farthestDateSec += 30;
         }
+        let farthestDate = new Date(farthestDateSec * 1000);
+        console.log(`Sending color ${body} for  ` + farthestDate.toISOString());
 
         // Add new data to firebase
         var submit = firebase.firestore()
             .collection('lights')
             .add({
-                date: firebase.firestore.Timestamp.fromDate(new Date()),
+                date: firebase.firestore.Timestamp.fromDate(farthestDate),
                 color: body
+            }, err => {
+                console.log(`Firebase Save Encountered error: ${err}`);
+                console.log(JSON.stringify(err));
             });
-        console.log(`Submitted firebase ${JSON.stringify(submit)}`);
-        res.write(new Date(farthestDateSec).toISOString());
+        console.log(`Submitted firebase`);
+        res.write(JSON.stringify({date: farthestDate}));
         res.end();
+    }, err => {
+        console.log(`Firebase never finished Encountered error: ${err}`);
+        console.log(JSON.stringify(err));
     });
 }
 

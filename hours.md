@@ -17,3 +17,4 @@
 
 ## HUG
 2019-10-06 1.5h split services, start firebase
+2019-10-09 2h style, change root, show date time of deploy

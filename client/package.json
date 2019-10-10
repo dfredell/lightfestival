@@ -4,7 +4,7 @@
   "description": "Application Description",
   "main": "server.js",
   "scripts": {
-    "start": "./node_modules/.bin/concurrently --kill-others \\\"watchify src/main.js --poll=500 -v -o target/bundle.js\\\" \\\"node server.js\\\""
+    "start": "./node_modules/.bin/concurrently --kill-others \\\"./node_modules/.bin/watchify src/main.js --poll=500 -v -o target/bundle.js\\\" \\\"node server.js\\\""
   },
   "repository": {
     "type": "git",

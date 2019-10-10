@@ -1,7 +1,7 @@
 
 @font-face {
-    font-family: 'silombold';
-    src: url('SilomBol.ttf');
+    /*font-family: 'silombold';*/
+    /*src: url('SilomBol.ttf');*/
     font-weight: normal;
     font-style: normal;
 }
@@ -19,12 +19,12 @@ body {
     background-color: black;
     color: white;
     margin: 0;
-    overflow: hidden; /* Don't scroll page  when selecting edge color*/
+    /*overflow: hidden; !* Don't scroll page  when selecting edge color*!*/
 }
 
 h1.invaders-title {
     color: white;
-    font-size: 5em;
+    font-size: 4em;
     padding-left: 10%;
     padding-top: 10%;
 }
@@ -163,6 +163,10 @@ button.send-color:disabled {
 
 
 div#verify-color {
+    display: none;
+    height: 100%;
+}
+div#sending-color {
     display: none;
     height: 100%;
 }

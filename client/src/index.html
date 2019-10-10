@@ -2,10 +2,10 @@
 <head>
     <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
 
-    <link rel="stylesheet" href="/node_modules/codemirror-colorpicker/dist/codemirror-colorpicker.css">
-    <link rel="stylesheet" href="/src/main.css">
+    <link rel="stylesheet" href="/codemirror-colorpicker/dist/codemirror-colorpicker.css">
+    <link rel="stylesheet" href="/main.css">
 
-    <script src="/target/bundle.js"></script>
+    <script src="/bundle.js"></script>
     <!--    No zoom on mobile -->
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'/>
 
@@ -15,10 +15,8 @@
     <title>Invaders</title>
 </head>
 <body>
-<p class="timer">0:00</p>
-
 <div id="enter-screen">
-    <h1 class="invaders-title">SPACE INVADERS</h1>
+    <h1 class="invaders-title">HUG Christmas Lights</h1>
 
     <div class="enter-box">
         <a  class="enter" id="enter-button">ENTER!</a>
@@ -57,17 +55,18 @@
     </div>
 </div>
 
+<div id="sending-color">
+    <h2 class="show-color"><span class="verify-color-text">Sending your color..</span> </h2>
+</div>
+
 <div id="show-color">
     <h2 class="show-color"><span class="verify-color-text">This is your color</span> </h2>
-    <h2 class="show-color"><span class="verify-color-text">Wait for your light!</span></h2>
-    <h2 class="show-color"><span id="color-date" class="verify-color-text"></span></h2>
-    <h2 class="timer verify-color-text">0:00</h2>
+    <h2 class="show-color"><span class="verify-color-text">Your light will be displayed at</span> <span id="color-date" class="verify-color-text"></span></h2>
     <h3 class="credits"><span class="verify-color-text">Artist: Marco Amedani<br/>Software Developer: Dan Fredell</span> </h3 >
 </div>
 
 <div id="show-color-error">
-    <h2 class="show-color"><span class="verify-color-text">All colors have been claimed please wait</span> </h2>
-    <h2 class="timer verify-color-text">0:00</h2>
+    <h2 class="show-color"><span class="verify-color-text">There was an error submitting please try again</span> </h2>
     <h3 class="credits"><span class="verify-color-text">Artist: Marco Amedani<br/>Software Developer: Dan Fredell</span> </h3 >
 </div>
 
