@@ -12,5 +12,6 @@ COPY target /home/node/app/target/
 COPY package.json /home/node/app/
 COPY server.js /home/node/app/
 COPY settings.json /home/node/app/
+COPY lightfestival-firebase-adminsdk.json /home/node/app/
 
 CMD ["/usr/local/bin/node","server.js"]
