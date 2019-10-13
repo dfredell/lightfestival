@@ -223,6 +223,7 @@ function sendRgbDmx() {
  * Create the final dmx value array and start fade/ transition to it
  */
 function runTransition(nextColor) {
+    nextColor = JSON.parse(nextColor);
     console.log(`Fading to ${JSON.stringify(nextColor)}`);
     transitionFinishDmx = dmxOutput.slice(0);
     var settings = JSON.parse(fs.readFileSync("settings.json"));
@@ -375,9 +376,9 @@ function processFirebaseDoc(doc) {
         return;
     }
     // schedule color change
-    const secWait = dateSec - epochNowSec;
-    setTimeout(runTransition.bind(null, color), secWait);
-    console.log(`Scheduled fade for ${doc.id} to ${color} in ${secWait} seconds`);
+    const secWait = (dateSec - epochNowSec) * 1000;
+    setTimeout(runTransition, secWait, color);
+    console.log(`Scheduled fade for ${doc.id} to ${color} in ${secWait} ms`);
 }
 
 // The signals we want to handle

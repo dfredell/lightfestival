@@ -76,8 +76,6 @@ const server = http.createServer(function (req, res) {
     var filename;
     if(q.pathname.indexOf("codemirror-colorpicker") > 0) {
         filename = "./node_modules" + q.pathname;
-    } else if(q.pathname.indexOf("bundle.js") > 0) {
-        filename = "./target" + q.pathname;
     } else {
         filename = "./src" + q.pathname;
     }
