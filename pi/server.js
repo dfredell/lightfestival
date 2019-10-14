@@ -52,9 +52,6 @@ const server = http.createServer(function (req, res) {
     if (req.url.includes('/submitColor')) {
         submitColor(req, res);
         return;
-    } else if (req.url.includes('/timer')) {
-        submitTimer(req, res);
-        return;
     } else if (req.url.includes('/currentrgbchannels')) {
         currentRgbchannels(req, res);
         return;
@@ -125,35 +122,6 @@ function submitColor(req, res) {
     })
 }
 
-// get the server's version of a 3min countdown
-function submitTimer(req, res) {
-    res.writeHead(200, {
-        'Content-Type': 'application/json',
-        "Cache-Control": "no-cache, no-store, must-revalidate",
-        "Pragma": "no-cache",
-        "Expires": 0,
-    });
-
-    res.write(JSON.stringify(calcNextSend()));
-    res.end();
-}
-
-// Returns the next time to send DMX updates
-function calcNextSend() {
-    var settings = JSON.parse(fs.readFileSync("settings.json"));
-    waittime = Math.max(1, settings.waittime);
-
-    var now = new Date();
-    var nowSec = now.getUTCSeconds();
-    var nowMin = now.getUTCMinutes();
-    var remainingMin = waittime - (nowMin % waittime) - 1;
-
-    var data = {};
-    data.minutes = remainingMin;
-    data.seconds = 60 - nowSec;
-    console.log("CalcNextSend. waittime:" + waittime + " nowMin:" + nowMin + " nowSec:" + nowSec + " data:" + JSON.stringify(data));
-    return data;
-}
 
 // update the settings file
 function submitRgbchannels(req, res) {

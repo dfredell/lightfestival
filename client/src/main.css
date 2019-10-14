@@ -207,6 +207,16 @@ div#show-color-error {
     height: 100%;
 }
 
+div#show-cooldown {
+    display: none;
+    height: 100%;
+}
+div#show-cooldown h2.show-color {
+    position: absolute;
+    top: 30%;
+    padding: 0 1em 0 1em;
+}
+
 h2.show-color {
     padding: 1em;
     margin: 0;

@@ -7,6 +7,7 @@ require("./admin.js");
 var draggable;
 var picker;
 var white = 0;
+let hugCooldown = "hug-cooldown";
 
 $(document).ready(function () {
     draggable = require("draggable");
@@ -136,11 +137,18 @@ function submitColor() {
 
 function setupEnter() {
     $('#enter-button').on('click', function () {
-        $('#enter-screen').hide();
-        $('#select-color').show();
-        $("p.timer").show();
-        $("p.timer").css('color', 'white');
-        setupPicker();
+        let cooldown = checkCooldown();
+        if (cooldown < new Date().getTime()) {
+            $('#enter-screen').hide();
+            $('#select-color').show();
+            $("p.timer").show();
+            $("p.timer").css('color', 'white');
+            setupPicker();
+        } else {
+            $('#enter-screen').hide();
+            $('#show-cooldown').show();
+            $('#submit-cooldown').html(cooldown.toLocaleTimeString());
+        }
     });
 }
 
@@ -157,6 +165,27 @@ function verifyNo() {
     $("#select-color").show();
     $("#verify-color").hide();
     $("p.timer").css('color', 'white');
+}
+
+/**
+ * Set the user's cookie to wait
+ * @param date
+ */
+function setCooldownCookie(date) {
+    let d = new Date();
+    d.setMinutes(d.getMinutes() + 3);
+    sessionStorage.setItem(hugCooldown, d.getTime() + "");
+}
+
+/**
+ * check the cooldown time
+ */
+function checkCooldown() {
+    let item = sessionStorage.getItem(hugCooldown);
+    if (item === null){
+        item = 0;
+    }
+    return new Date(parseInt(item));
 }
 
 /**
@@ -186,6 +215,7 @@ function verifyYes() {
             let date = new Date(msg.date);
             $("#color-date").html(date.toLocaleString());
             $("p.timer").hide();
+            setCooldownCookie(date);
         },
         error: function (msg) {
             $("#sending-color").hide();
