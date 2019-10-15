@@ -2,35 +2,35 @@
 const http = require('http');
 const hostname = '127.0.0.1';
 const isDocker = require('is-docker');
-var port = 80;
+let port = 80;
 console.log("Starting with isDocker: " + isDocker());
 if (!isDocker()) {
     port = 8081;
 }
 const fs = require('fs');
 const url = require('url');
-var requirejs = require('requirejs');
+let requirejs = require('requirejs');
 const path = require('path'); // For working with file and directory paths
-var request = require('request');
+let request = require('request');
 const {parse} = require('querystring');
 const readLastLines = require('read-last-lines');
 
 // Firebase
-var firebase = require('firebase-admin');
-var serviceAccount = require("./lightfestival-firebase-adminsdk.json");
+let firebase = require('firebase-admin');
+let serviceAccount = require("./lightfestival-firebase-adminsdk.json");
 firebase.initializeApp({
     credential: firebase.credential.cert(serviceAccount),
     databaseURL: "https://lightfestival.firebaseio.com"
 });
 
-var submittedColors = [];
-var dmxOutput = [];
-var incrementalDiff = [];
-var transitionFinishDmx = [];
+let submittedColors = [];
+let dmxOutput = [];
+let incrementalDiff = [];
+let transitionFinishDmx = [];
 
-var numOfStepsLeft = 0;
-var numOfSteps = 100;
-var fadeStepsPerSec = 10;
+let numOfStepsLeft = 0;
+let numOfSteps = 100;
+let fadeStepsPerSec = 10;
 
 const mimeTypes = {
     '.html': 'text/html',
@@ -69,8 +69,8 @@ const server = http.createServer(function (req, res) {
     }
     res.statusCode = 200;
     res.setHeader('Content-Type', 'text/plain');
-    var q = url.parse(req.url, true);
-    var filename = "." + q.pathname;
+    let q = url.parse(req.url, true);
+    let filename = "." + q.pathname;
     fs.readFile(filename, function (err, data) {
         if (err) {
             res.writeHead(404, {'Content-Type': 'text/html'});
@@ -89,9 +89,9 @@ server.listen(port, function () {
 
 // accept a new color from the user
 function submitColor(req, res) {
-    var channels = JSON.parse(fs.readFileSync("settings.json")).rgbchannels;
+    let channels = JSON.parse(fs.readFileSync("settings.json")).rgbchannels;
 
-    var body = '';
+    let body = '';
     req.on('data', function (data) {
         body += data;
         console.log('Partial body: ' + body);
@@ -115,7 +115,7 @@ function submitColor(req, res) {
         fs.appendFile("colorSubmitted.log", new Date().toISOString() + "\t" + body + "\n", function () {
         });
 
-        var data = {};
+        let data = {};
         data.img = 'map1.png';
         res.write(JSON.stringify(data));
         res.end();
@@ -125,7 +125,7 @@ function submitColor(req, res) {
 
 // update the settings file
 function submitRgbchannels(req, res) {
-    var body = '';
+    let body = '';
     req.on('data', function (data) {
         body += data;
         console.log('Partial body: ' + body);
@@ -134,7 +134,7 @@ function submitRgbchannels(req, res) {
         console.log("Submitted color " + body);
         console.log('Body: ' + body);
         res.writeHead(200, {'Content-Type': 'application/json'});
-        var settings = parse(body);
+        let settings = parse(body);
         settings.rgbchannels = settings.rgbchannels.split(",").map(Number);
         settings.parkedchannels = settings.parkedchannels.split(",").map(Number);
         settings.fadetime = parseInt(settings.fadetime);
@@ -154,7 +154,7 @@ function currentRgbchannels(req, res) {
         "Pragma": "no-cache",
         "Expires": 0,
     });
-    var content = fs.readFileSync("settings.json");
+    let content = fs.readFileSync("settings.json");
     res.write((content));
     res.end();
 }
@@ -166,13 +166,13 @@ function currentRgbchannels(req, res) {
 function sendRgbDmx() {
     // console.log("sending DMX update");
 
-    var universe = 0;
-    var url = 'http://localhost:9090/set_dmx';
-    var data = "u=" + universe + "&d=" + dmxOutput.join(",");
+    let universe = 0;
+    let url = 'http://localhost:9090/set_dmx';
+    let data = "u=" + universe + "&d=" + dmxOutput.join(",");
 
 //    require('request').debug = true
 
-    var clientServerOptions = {
+    let clientServerOptions = {
         uri: url,
         body: data,
         method: 'POST',
@@ -193,14 +193,50 @@ function sendRgbDmx() {
 function runTransition(nextColor) {
     nextColor = JSON.parse(nextColor);
     console.log(`Fading to ${JSON.stringify(nextColor)}`);
-    transitionFinishDmx = dmxOutput.slice(0);
-    var settings = JSON.parse(fs.readFileSync("settings.json"));
+
+    let startingDmx = dmxOutput.slice(0);
+    let startingDmx2 = dmxOutput.slice(0);
+    fullColor(nextColor, startingDmx);
+    setTimeout(shiftColor, 11000, nextColor, startingDmx2);
+}
+
+/**
+ * Fade all fixtures to this color
+ * @param nextColor
+ * @param startingDmx
+ */
+function fullColor(nextColor, startingDmx) {
+    let settings = JSON.parse(fs.readFileSync("settings.json"));
+    transitionFinishDmx = startingDmx;
+
+    // set all the running lights to next color
+    let fixtures = settings.rgbchannels;
+    for (let i = 0; i < fixtures.length; i++) {
+        let fixtureA = fixtures[i];
+        transitionFinishDmx[fixtureA - 1] = nextColor.r;
+        transitionFinishDmx[fixtureA] = nextColor.g;
+        transitionFinishDmx[fixtureA + 1] = nextColor.b;
+        transitionFinishDmx[fixtureA + 2] = nextColor.w;
+    }
+
+    calcFade();
+    startFade();
+}
+
+/**
+ * Fade sift all of the colors down one fixture
+ * @param nextColor
+ * @param startingDmx
+ */
+function shiftColor(nextColor, startingDmx) {
+    let settings = JSON.parse(fs.readFileSync("settings.json"));
+    transitionFinishDmx = startingDmx;
 
     // shift all the running lights down one fixture
-    var fixtures = settings.rgbchannels;
-    for (var i = fixtures.length; i > 0; i--) {
-        var fixtureA = fixtures[i];
-        var fixtureB = fixtures[i - 1];
+    let fixtures = settings.rgbchannels;
+    for (let i = fixtures.length; i > 0; i--) {
+        let fixtureA = fixtures[i];
+        let fixtureB = fixtures[i - 1];
         transitionFinishDmx[fixtureA - 1] = transitionFinishDmx[fixtureB - 1];
         transitionFinishDmx[fixtureA] = transitionFinishDmx[fixtureB];
         transitionFinishDmx[fixtureA + 1] = transitionFinishDmx[fixtureB + 1];
@@ -217,22 +253,33 @@ function runTransition(nextColor) {
     fs.appendFile("colorOutput.log", new Date().toISOString() + "\t" + transitionFinishDmx + "\n", function () {
     });
 
-    numOfSteps = fadeStepsPerSec * settings.fadetime;
+    calcFade();
+    startFade();
+}
+
+/**
+ * Do the calcs to populate incrementalDiff
+ */
+function calcFade(){
+    let settings = JSON.parse(fs.readFileSync("settings.json"));
+
+    numOfSteps = fadeStepsPerSec * 10;
+    // numOfSteps = fadeStepsPerSec * settings.fadetime;
 
     // calculate the incremental values
-    i = 0;
+    let i = 0;
     while (i < dmxOutput.length) {
         incrementalDiff[i] = (transitionFinishDmx[i] - dmxOutput[i]) / numOfSteps;
         i++;
     }
     numOfStepsLeft = numOfSteps;
 
+
     // console.log("start dmx:" + dmxOutput);
     // console.log("end dmx:" + transitionFinishDmx);
     // console.log("incr dmx:" + incrementalDiff);
     // console.log("numOfSteps: " + numOfSteps + " fadeStepsPerSec: " + fadeStepsPerSec);
 
-    startFade();
 }
 
 // start the fade ball rolling, called every 3min then every ~100ms
@@ -243,7 +290,7 @@ function startFade() {
         fade();
         setTimeout(startFade, 1000 / fadeStepsPerSec);
     } else {
-        var i = 0;
+        let i = 0;
         while (i < dmxOutput.length) {
             dmxOutput[i] = transitionFinishDmx[i];
             i++;
@@ -253,7 +300,7 @@ function startFade() {
 
 // run one incrementalDiff, executes every ~100ms
 function fade() {
-    var i = 0;
+    let i = 0;
     while (i < dmxOutput.length) {
         dmxOutput[i] += incrementalDiff[i];
         i++;
@@ -264,7 +311,7 @@ function fade() {
  * Start the parked channels and all channels to full
  */
 function whiteDmx() {
-    var settings = JSON.parse(fs.readFileSync("settings.json"));
+    let settings = JSON.parse(fs.readFileSync("settings.json"));
 
 
     //fill array with 0s
@@ -294,7 +341,7 @@ function initDmx() {
                 if (lines.length > 500) {
                     dmxOutput = lines.split("\t")[1].split(",");
                     console.log("Loaded DMX from file");
-                    var i = 0;
+                    let i = 0;
                     while (i < dmxOutput.length) {
                         dmxOutput[i] = parseInt(dmxOutput[i]);
                         i++;
@@ -351,7 +398,7 @@ function processFirebaseDoc(doc) {
 
 // The signals we want to handle
 // NOTE: although it is tempting, the SIGKILL signal (9) cannot be intercepted and handled
-var signals = {
+let signals = {
     'SIGHUP': 1,
     'SIGINT': 2,
     'SIGTERM': 15
