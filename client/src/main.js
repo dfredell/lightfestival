@@ -174,14 +174,14 @@ function verifyNo() {
 function setCooldownCookie(date) {
     let d = new Date();
     d.setMinutes(d.getMinutes() + 3);
-    sessionStorage.setItem(hugCooldown, d.getTime() + "");
+    localStorage.setItem(hugCooldown, d.getTime() + "");
 }
 
 /**
  * check the cooldown time
  */
 function checkCooldown() {
-    let item = sessionStorage.getItem(hugCooldown);
+    let item = localStorage.getItem(hugCooldown);
     if (item === null){
         item = 0;
     }
