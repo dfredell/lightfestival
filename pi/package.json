@@ -11,7 +11,7 @@
     "url": "https://github.com/npm/npm.git"
   },
   "dependencies": {
-    "firebase-admin": "^8.6.0",
+    "firebase-admin": "^8.6.1",
     "is-docker": "^2.0.0",
     "jquery": "^3.4.1",
     "querystring": "^0.2.0",
