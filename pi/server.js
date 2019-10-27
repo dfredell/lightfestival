@@ -1,18 +1,8 @@
 /*server.js*/
-const http = require('http');
-const hostname = '127.0.0.1';
-const isDocker = require('is-docker');
-let port = 80;
-console.log("Starting with isDocker: " + isDocker());
-if (!isDocker()) {
-    port = 8081;
-}
 const fs = require('fs');
 const url = require('url');
 let requirejs = require('requirejs');
-const path = require('path'); // For working with file and directory paths
 let request = require('request');
-const {parse} = require('querystring');
 const readLastLines = require('read-last-lines');
 
 // Firebase
@@ -23,7 +13,6 @@ firebase.initializeApp({
     databaseURL: "https://lightfestival.firebaseio.com"
 });
 
-let submittedColors = [];
 let dmxOutput = [];
 let incrementalDiff = [];
 let transitionFinishDmx = [];
@@ -46,119 +35,6 @@ const mimeTypes = {
     '.woff': 'font/woff',
     '.woff2': 'font/woff2'
 };
-
-
-const server = http.createServer(function (req, res) {
-    if (req.url.includes('/submitColor')) {
-        submitColor(req, res);
-        return;
-    } else if (req.url.includes('/currentrgbchannels')) {
-        currentRgbchannels(req, res);
-        return;
-    } else if (req.url.includes('/rgbchannels')) {
-        submitRgbchannels(req, res);
-        return;
-    } else if (req.url.includes('/panic')) {
-        whiteDmx();
-        res.write("Success");
-        res.end();
-        return;
-    } else if (req.url === '/') {
-        res.writeHead(302, {'Location': 'src/index.html'});
-        return res.end();
-    }
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/plain');
-    let q = url.parse(req.url, true);
-    let filename = "." + q.pathname;
-    fs.readFile(filename, function (err, data) {
-        if (err) {
-            res.writeHead(404, {'Content-Type': 'text/html'});
-            return res.end("404 Not Found");
-        }
-        let ext = path.parse(filename).ext;
-        res.writeHead(200, {'Content-Type': mimeTypes[ext]})
-        res.write(data);
-        return res.end();
-    });
-
-});
-server.listen(port, function () {
-    console.log('Server running at http://' + hostname + ':' + port + '/');
-});
-
-// accept a new color from the user
-function submitColor(req, res) {
-    let channels = JSON.parse(fs.readFileSync("settings.json")).rgbchannels;
-
-    let body = '';
-    req.on('data', function (data) {
-        body += data;
-        console.log('Partial body: ' + body);
-    });
-    req.on('end', function () {
-        console.log("Submitted color " + body);
-        console.log('Body: ' + body);
-        //validate there is more room on the queue
-        if (channels.length <= submittedColors.length) {
-            res.writeHead(500, {'Content-Type': 'application/json'});
-            res.write(JSON.stringify({message: "Too many submittions"}));
-            res.end();
-            return;
-        }
-
-        res.writeHead(200, {'Content-Type': 'application/json'});
-        // add to queue
-        submittedColors.push(body);
-
-        // save log
-        fs.appendFile("colorSubmitted.log", new Date().toISOString() + "\t" + body + "\n", function () {
-        });
-
-        let data = {};
-        data.img = 'map1.png';
-        res.write(JSON.stringify(data));
-        res.end();
-    })
-}
-
-
-// update the settings file
-function submitRgbchannels(req, res) {
-    let body = '';
-    req.on('data', function (data) {
-        body += data;
-        console.log('Partial body: ' + body);
-    });
-    req.on('end', function () {
-        console.log("Submitted color " + body);
-        console.log('Body: ' + body);
-        res.writeHead(200, {'Content-Type': 'application/json'});
-        let settings = parse(body);
-        settings.rgbchannels = settings.rgbchannels.split(",").map(Number);
-        settings.parkedchannels = settings.parkedchannels.split(",").map(Number);
-        settings.fadetime = parseInt(settings.fadetime);
-        settings.waittime = parseInt(settings.waittime);
-        fs.writeFile("settings.json", JSON.stringify(settings), function () {
-        });
-        res.write("Success");
-        res.end();
-    })
-}
-
-// get the settings file for the admin page
-function currentRgbchannels(req, res) {
-    res.writeHead(200, {
-        'Content-Type': 'application/json',
-        "Cache-Control": "no-cache, no-store, must-revalidate",
-        "Pragma": "no-cache",
-        "Expires": 0,
-    });
-    let content = fs.readFileSync("settings.json");
-    res.write((content));
-    res.end();
-}
-
 
 /**
  * send dmxOutput to ola every 100ms
@@ -395,30 +271,6 @@ function processFirebaseDoc(doc) {
     setTimeout(runTransition, secWait, color);
     console.log(`Scheduled fade for ${doc.id} to ${color} in ${secWait} ms`);
 }
-
-// The signals we want to handle
-// NOTE: although it is tempting, the SIGKILL signal (9) cannot be intercepted and handled
-let signals = {
-    'SIGHUP': 1,
-    'SIGINT': 2,
-    'SIGTERM': 15
-};
-// Do any necessary shutdown logic for our application here
-const shutdown = (signal, value) => {
-    console.log("shutdown!");
-    server.close(() => {
-        console.log(`server stopped by ${signal} with value ${value}`);
-        process.exit(128 + value);
-    });
-};
-// Create a listener for each of the signals that we want to handle
-Object.keys(signals).forEach((signal) => {
-    process.on(signal, () => {
-        console.log(`process received a ${signal} signal`);
-        shutdown(signal, signals[signal]);
-    });
-});
-
 initDmx();
 sendRgbDmx();
 startListeners();

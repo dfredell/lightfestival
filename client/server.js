@@ -24,10 +24,6 @@ firebase.initializeApp({
     databaseURL: "https://lightfestival.firebaseio.com"
 });
 
-var submittedColors = [];
-var dmxOutput = [];
-
-
 const mimeTypes = {
     '.html': 'text/html',
     '.js': 'text/javascript',
@@ -262,8 +258,6 @@ function submitRgbchannels(req, res) {
         console.log('Body: ' + body);
         res.writeHead(200, {'Content-Type': 'application/json'});
         var settings = parse(body);
-        settings.rgbchannels = settings.rgbchannels.split(",").map(Number);
-        settings.parkedchannels = settings.parkedchannels.split(",").map(Number);
         settings.cooldown = parseInt(settings.cooldown);
         settings.waittime = parseInt(settings.waittime);
         let changed = channelsChanged(settings);
