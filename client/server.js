@@ -260,11 +260,11 @@ function submitRgbchannels(req, res) {
         var settings = parse(body);
         settings.cooldown = parseInt(settings.cooldown);
         settings.waittime = parseInt(settings.waittime);
-        let changed = channelsChanged(settings);
+        // let changed = channelsChanged(settings);
         fs.writeFile("settings.json", JSON.stringify(settings), function () {
-            if(changed){
-                whiteDmx();
-            }
+            // if(changed){
+            //     whiteDmx();
+            // }
         });
         res.write("Success");
         res.end();
