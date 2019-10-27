@@ -15,16 +15,12 @@
     <input type="text" id="rgbchannels" name="rgbchannels"/>
     <p>Parked channels at 100%</p>
     <input type="text" id="parkedchannels" name="parkedchannels"/>
-    <p>Channel fade time (s)</p>
-    <input type="text" id="fadetime" name="fadetime"/>
-    <p>Wait time between color changes (m)</p>
+    <p>Cool down time (m) between color submissions from the same user</p>
+    <input type="text" id="cooldown" name="cooldown"/>
+    <p>Wait time between color changes (s) 30s or more</p>
     <input type="text" id="waittime" name="waittime"/>
     <br/>
     <input id="submit-rgb-settings" type="submit"/>
-</form>
-<form action="/panic" method="post" id="form-panic" style="margin-top: 5em">
-    <p>Set all fixtures to all White</p>
-    <input id="submit-white" type="submit"/>
 </form>
 </body>
 </html>

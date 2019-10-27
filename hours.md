@@ -20,3 +20,6 @@
 2019-10-09 2h style, change root, show date time of deploy
 2019-10-13 .5h  Pi: parse json, setimeout in ms client: move bundle.js to src
 2019-10-16 1.5h correct firebase permission. Demo deployed
+2019-10-26 3h setting up GCP and pi
+2019-10-27 3h Setting up Pi USB DMX, auth, connect time settings
+

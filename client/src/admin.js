@@ -27,7 +27,7 @@ function setupChannels(){
     }).done(function( msg ) {
         $("#rgbchannels").val(msg.rgbchannels);
         $("#parkedchannels").val(msg.parkedchannels);
-        $("#fadetime").val(msg.fadetime);
+        $("#cooldown").val(msg.cooldown);
         $("#waittime").val(msg.waittime);
     });
 }

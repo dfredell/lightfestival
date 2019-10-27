@@ -14,6 +14,7 @@ const path = require('path'); // For working with file and directory paths
 var request = require('request');
 const {parse} = require('querystring');
 const readLastLines = require('read-last-lines');
+var auth = require('basic-auth');
 
 // Firebase
 var firebase = require('firebase-admin');
@@ -25,12 +26,7 @@ firebase.initializeApp({
 
 var submittedColors = [];
 var dmxOutput = [];
-var incrementalDiff = [];
-var transitionFinishDmx = [];
 
-var numOfStepsLeft = 0;
-var numOfSteps = 100;
-var fadeStepsPerSec = 10;
 
 const mimeTypes = {
     '.html': 'text/html',
@@ -49,6 +45,18 @@ const mimeTypes = {
 
 
 const server = http.createServer(function (req, res) {
+    if (req.url.includes('/admin') || req.url.includes('/rgbchannels')) {
+        // Check credentials
+        // The "check" function will typically be against your user store
+        var credentials = auth(req);
+        if (!credentials || !check(credentials.name, credentials.pass)) {
+            res.statusCode = 401;
+            res.setHeader('WWW-Authenticate', 'Basic realm="example"');
+            res.end('Access denied');
+            return;
+        }
+    }
+
     if (req.url.includes('/submitColor')) {
         submitColor(req, res);
         return;
@@ -97,6 +105,15 @@ server.listen(port, hostname, function () {
     console.log('Server running at http://' + hostname + ':' + port + '/');
 });
 
+// Basic function to validate credentials for example
+function check(name, pass) {
+    var valid = true;
+
+    // Simple method to prevent short-circut and use timing-safe compare
+    valid = name === 'marco' && valid;
+    valid = pass === 'Ar]PcR=Zt3P$G[M' && valid;
+    return valid;
+}
 // accept a new color from the user
 function submitColor(req, res) {
     var channels = JSON.parse(fs.readFileSync("settings.json")).rgbchannels;
@@ -109,13 +126,6 @@ function submitColor(req, res) {
     req.on('end', function () {
         console.log("Submitted color " + body);
         console.log('Body: ' + body);
-        //validate there is more room on the queue
-        if (channels.length <= submittedColors.length) {
-            res.writeHead(500, {'Content-Type': 'application/json'});
-            res.write(JSON.stringify({message: "Too many submittions"}));
-            res.end();
-            return;
-        }
 
         res.writeHead(200, {'Content-Type': 'application/json'});
         // add to queue
@@ -135,6 +145,8 @@ function submitColor(req, res) {
 function sendDataToDb(body,res) {
     // Get the most future light time so we know when we can go next
     let farthestDateSec = 0;
+    var settings = JSON.parse(fs.readFileSync("settings.json"));
+
 
     let queryPromise = firebase.firestore()
         .collection('lights')
@@ -160,9 +172,9 @@ function sendDataToDb(body,res) {
         if (farthestDateSec === 0) {
             farthestDateSec = new Date().getTime()/1000;
             // Round up to the next 30 second block
-            farthestDateSec = farthestDateSec - farthestDateSec % 30 + 30;
+            farthestDateSec = farthestDateSec - farthestDateSec % settings.waittime + settings.waittime;
         } else {
-            farthestDateSec += 30;
+            farthestDateSec += settings.waittime;
         }
         let farthestDate = new Date(farthestDateSec * 1000);
         console.log(`Sending color ${body} for  ` + farthestDate.toISOString());
@@ -178,7 +190,9 @@ function sendDataToDb(body,res) {
                 console.log(JSON.stringify(err));
             });
         console.log(`Submitted firebase`);
-        res.write(JSON.stringify({date: farthestDate}));
+        var cooldown = new Date();
+        cooldown.setMinutes(cooldown.getMinutes() + settings.cooldown);
+        res.write(JSON.stringify({date: farthestDate,cooldown: cooldown }));
         res.end();
     }, err => {
         console.log(`Firebase never finished Encountered error: ${err}`);
@@ -216,6 +230,26 @@ function calcNextSend() {
     return data;
 }
 
+/**
+ * If the dmx channels changed from what is in the settings file
+ * @param settings
+ * @returns {boolean}
+ */
+function channelsChanged(settings) {
+    var file = JSON.parse(fs.readFileSync("settings.json"));
+    if (!arrayEquals(settings.rgbchannels, file.rgbchannels)) {
+        return true;
+    }
+    if (!arrayEquals(settings.parkedchannels, file.parkedchannels)) {
+        return true;
+    }
+    return false;
+}
+
+function arrayEquals(arr1,arr2) {
+    return arr1.length === arr2.length && arr1.every((v) => arr2.indexOf(v) >= 0);
+}
+
 // update the settings file
 function submitRgbchannels(req, res) {
     var body = '';
@@ -230,9 +264,13 @@ function submitRgbchannels(req, res) {
         var settings = parse(body);
         settings.rgbchannels = settings.rgbchannels.split(",").map(Number);
         settings.parkedchannels = settings.parkedchannels.split(",").map(Number);
-        settings.fadetime = parseInt(settings.fadetime);
+        settings.cooldown = parseInt(settings.cooldown);
         settings.waittime = parseInt(settings.waittime);
+        let changed = channelsChanged(settings);
         fs.writeFile("settings.json", JSON.stringify(settings), function () {
+            if(changed){
+                whiteDmx();
+            }
         });
         res.write("Success");
         res.end();

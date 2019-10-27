@@ -11,6 +11,7 @@
     "url": "https://github.com/npm/npm.git"
   },
   "dependencies": {
+    "basic-auth": "^2.0.1",
     "codemirror": "^5.49.2",
     "codemirror-colorpicker": "^1.9.52",
     "draggable": "^4.2.0",

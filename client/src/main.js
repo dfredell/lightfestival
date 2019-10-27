@@ -172,9 +172,7 @@ function verifyNo() {
  * @param date
  */
 function setCooldownCookie(date) {
-    let d = new Date();
-    d.setMinutes(d.getMinutes() + 3);
-    localStorage.setItem(hugCooldown, d.getTime() + "");
+    localStorage.setItem(hugCooldown, date.getTime() + "");
 }
 
 /**
@@ -215,7 +213,7 @@ function verifyYes() {
             let date = new Date(msg.date);
             $("#color-date").html(date.toLocaleString());
             $("p.timer").hide();
-            setCooldownCookie(date);
+            setCooldownCookie(new Date(msg.cooldown));
         },
         error: function (msg) {
             $("#sending-color").hide();
