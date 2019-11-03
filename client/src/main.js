@@ -8,6 +8,7 @@ var draggable;
 var picker;
 var white = 0;
 let hugCooldown = "hug-cooldown";
+let hugSelectedColor = "hug-selected-color";
 
 $(document).ready(function () {
     draggable = require("draggable");
@@ -37,8 +38,8 @@ function updateColors() {
     // var color = picker.getColor(true);
     var cssColor = getCssColor(color);
     $(".drag-bar").css('background-color', cssColor);
-    $(".drag-pointer,#send-color").css('background-color', cssColor);
-    $("#send-color").css('color', 'white');
+    $(".drag-pointer").css('background-color', cssColor);
+    $("h1.select-color").css('color', cssColor);
     $("#send-color").attr("disabled", false);
     $(".value-container").css('background-image', 'linear-gradient(to left, #ffffff 0%, ' + topColor() + ' 100%)');
 }
@@ -130,7 +131,7 @@ function submitColor() {
     $("#select-color").hide();
     $("#verify-color").show();
     $("#verify-color").css("background-color", cssColor);
-    $(".verify-color-text,p.timer").css("color", invert(color));
+    // $(".verify-color-text,p.timer").css("color", invert(color));
     $("#show-color").css("background-color", cssColor);
     $("#show-color-error").css("background-color", cssColor);
 }
@@ -145,9 +146,14 @@ function setupEnter() {
             $("p.timer").css('color', 'white');
             setupPicker();
         } else {
+            $('#submit-cooldown').html(cooldown.toLocaleTimeString());
+            let oldColor = localStorage.getItem(hugSelectedColor);
+            if (oldColor) {
+                $("#show-cooldown,#show-social-media").css("background-color", oldColor);
+            }
+            countdownToSocialMedia();
             $('#enter-screen').hide();
             $('#show-cooldown').show();
-            $('#submit-cooldown').html(cooldown.toLocaleTimeString());
         }
     });
 }
@@ -214,6 +220,7 @@ function verifyYes() {
             $("#color-date").html(date.toLocaleString());
             $("p.timer").hide();
             setCooldownCookie(new Date(msg.cooldown));
+            localStorage.setItem(hugSelectedColor, cssColor);
         },
         error: function (msg) {
             $("#sending-color").hide();
@@ -233,6 +240,29 @@ function calcColor(c, w) {
 function setupPositionImage() {
     $('#position-image').prop('src', '/src/images/' + new URLSearchParams(window.location.search).get('img'));
 }
+
+
+/**
+ * wait 5 sec then show social media page
+ */
+function countdownToSocialMedia(){
+    // setup countdown
+    var timer = new Timer();
+    timer.start({countdown: true, startValues: {seconds: 5}});
+    var text =  timer.getTimeValues().seconds;
+    $(".countdown-timer").html(text);
+
+    timer.addEventListener('secondsUpdated', function (e) {
+        var text = timer.getTimeValues().seconds;
+        $(".countdown-timer").html(text);
+    });
+    timer.addEventListener('targetAchieved', function (e) {
+        timer.stop();
+        $("#show-cooldown").hide();
+        $('#show-social-media').show();
+    });
+}
+
 
 /**
  * Add zeros in front of a number

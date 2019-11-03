@@ -1,7 +1,7 @@
 
 @font-face {
-    /*font-family: 'silombold';*/
-    /*src: url('SilomBol.ttf');*/
+    font-family: 'silombold';
+    src: url('ISOCTEUR.ttf');
     font-weight: normal;
     font-style: normal;
 }
@@ -16,40 +16,48 @@ p.timer {
 
 body {
     font-family: 'silombold', sans-serif;
-    background-color: black;
-    color: white;
+    background-color: white;
+    color: gray;
     margin: 0;
     /*overflow: hidden; !* Don't scroll page  when selecting edge color*!*/
-}
-
-h1.invaders-title {
-    color: white;
-    font-size: 4em;
-    padding-left: 10%;
-    padding-top: 10%;
 }
 
 #enter-screen {
     height: 100%;
 }
 
-div.enter-box {
-    padding-left: 10%;
-    padding-top: 10%;
+div.enter-top {
+    height: 60%;
+    background-color: white;
+}
+
+div.enter-bottom {
+    height: 40%;
+    background-color: gray;
+    text-align: center;
+}
+
+h1.invaders-title {
+    color: gray;
+    font-size: 4em;
+    text-align: center;
+    padding-top: 40vh;
+    animation:blinkingText 2s infinite;
+    font-weight: lighter;
 }
 
 a.enter {
-    color: black;
-    background-color: white;
-    font-size: 5em;
-    padding: 5px;
-    animation:blinkingText 0.8s infinite;
+    display: block;
+    color: white;
+    font-size: 2em;
+    padding-top: 15vh;
+    height: 100%;
 }
 
 @keyframes blinkingText{
-    0%{		color: #000;	background-color: white;}
-    50%{	color: transparent;background-color: transparent;	}
-    100%{	color: #000;	background-color: white;}
+    0%{		color: gray;}
+    50%{	color: transparent;	}
+    100%{	color: gray;}
 }
 /* Hide RGB numbers */
 #color-container .information {
@@ -69,7 +77,7 @@ a.enter {
 /*Center color bar*/
 #color-container .codemirror-colorpicker.macos .value {
     padding: 15px 16px;
-    background-color: black;
+    background-color: white;
     margin: 1em 0 0 0;
 }
 
@@ -77,8 +85,10 @@ a.enter {
     /*Remove box*/
     border: none;
     box-shadow: none;
-    width: 99%; /* dont cutoff color wheel on edge */
-    background-color: black;
+    width: 75%; /* dont cutoff color wheel on edge */
+    margin: auto;
+    background-color: white;
+    display: block;
     /* height: 80%; */
     /* height: 500px;
     background-color: black; */
@@ -87,7 +97,7 @@ a.enter {
 #color-container .codemirror-colorpicker .wheel {
     width: 100%;
     padding-top: 100%; /* 1:1 Aspect Ratio */
-    background-color: black;
+    background-color: white;
 }
 
 
@@ -119,7 +129,7 @@ a.enter {
 
 .value .value-container .drag-bar {
     width: 32px;
-    border: 2px dashed gray;
+    border: 2px solid gray;
     background-color: rgb(255,255,255);
 
     /*make square*/
@@ -136,24 +146,36 @@ a.enter {
 
 .select-color {
     text-align: center;
+    padding: 1em;
 }
 
 #select-color {
     display: none;
+    text-align: center;
+    height: 100%;
+}
+
+div#select-color .control {
+    padding-bottom: 2em;
+}
+
+div.select-bottom {
+    width: 100%;
+    height: auto;
+    background-color: gray;
+    padding: 6% 0 20%;
 }
 
 button.send-color {
     padding: 0 1em;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    color: white;
-    background-color: black;
+    display: block;;
+    color: gray;
+    background-color: white;
     font-size: 3em;
-    font-family: 'silombold', sans-serif;
     border: none;
     border-radius: 0;
-    text-shadow: 2px 2px #000;
+    /*text-shadow: 2px 2px #000;*/
+    margin: .5em auto;
 }
 
 
@@ -162,35 +184,62 @@ button.send-color:disabled {
 }
 
 
-div#verify-color {
+#verify-color {
     display: none;
     height: 100%;
 }
 div#sending-color {
     display: none;
     height: 100%;
+    padding-top: 1em;
 }
 
-span.verify-color-text {
-    line-height: 94%;
-}
-
-h1.verify-color {
-    padding: 2em 0 1em;
-    font-size: 5em;
+.verify-color-text {
+    padding: .2em;
+    line-height: 120%;
+    color: gray;
+    background-color: white;
     text-align: center;
-    text-shadow: 2px 2px #000;
 }
+
+h2.verify-color-text {
+    font-size: 2em;
+}
+
+h3.verify-color-text {
+    font-size: 1.5em;
+}
+
+.verify-color {
+    padding: 1em 0 1em;
+    text-align: center;
+    font-weight: lighter;
+}
+
+.verify-color h2.verify-color-text {
+    font-size: 2.5em;
+}
+
+h2.are-you-sure {
+    padding: .2em;
+    line-height: 140%;
+    color: gray;
+    background-color: white;
+    font-size: 2.5em;
+    text-align: center;
+}
+
 
 button.verify-color-choice {
-    padding: 0 1em;
+    padding: .5em;
     margin-left: auto;
     margin-right: auto;
-    font-size: 3em;
-    font-family: 'silombold', sans-serif;
+    margin-top: 1em;
+    font-size: 2em;
     border: none;
     border-radius: 0;
-    background-color: Transparent;
+    background-color: white;
+    color: gray;
     text-shadow: 2px 2px #000;
 }
 
@@ -201,6 +250,7 @@ div.verify-button-holder {
 div#show-color {
     display: none;
     height: 100%;
+    padding-top: 1em;
 }
 div#show-color-error {
     display: none;
@@ -210,18 +260,12 @@ div#show-color-error {
 div#show-cooldown {
     display: none;
     height: 100%;
+    padding-top: 1em;
 }
 div#show-cooldown h2.show-color {
     position: absolute;
     top: 30%;
     padding: 0 1em 0 1em;
-}
-
-h2.show-color {
-    padding: 1em;
-    margin: 0;
-    font-size: 3em;
-    text-shadow: 2px 2px #000;
 }
 
 h3.credits {
@@ -239,4 +283,10 @@ h2.timer {
     font-size: 3em;
     text-align: center;
     text-shadow: 2px 2px #000;
+}
+
+#show-social-media {
+    height: 100%;
+    padding-top: 1em;
+    display: none;
 }

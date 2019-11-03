@@ -22,4 +22,4 @@
 2019-10-16 1.5h correct firebase permission. Demo deployed
 2019-10-26 3h setting up GCP and pi
 2019-10-27 3h Setting up Pi USB DMX, auth, connect time settings
-
+2019-11-03 2h Transform to hug's white styling

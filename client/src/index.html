@@ -1,54 +1,76 @@
 <html>
 <head>
-    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+    <script>if (typeof module === 'object') {
+        window.module = module;
+        module = undefined;
+    }</script>
 
     <link rel="stylesheet" href="/codemirror-colorpicker/dist/codemirror-colorpicker.css">
     <link rel="stylesheet" href="/main.css">
+    <script src="https://kit.fontawesome.com/2dbc29f831.js" crossorigin="anonymous"></script>
 
     <script src="/bundle.js"></script>
     <!--    No zoom on mobile -->
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'/>
 
+    <!-- You can use Open Graph tags to customize link previews.
+    Learn more: https://developers.facebook.com/docs/sharing/webmasters -->
+    <meta property="og:url"           content="hhttp://www.collectcolorswith.me/" />
+    <meta property="og:type"          content="website" />
+    <meta property="og:title"         content="Hug" />
+    <meta property="og:description"   content="Hug light display" />
+    <meta property="og:image"         content="https://www.your-domain.com/path/image.jpg" />
+    <!-- Load Facebook SDK for JavaScript -->
+    <script>(function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.0";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
+
 
     <!-- Insert this line after script imports -->
     <script>if (window.module) module = window.module;</script>
-    <title>Christmas Lights</title>
+    <title>Hug</title>
 </head>
 <body>
 <div id="enter-screen">
-    <h1 class="invaders-title">HUG Christmas Lights</h1>
-
-    <div class="enter-box">
-        <a  class="enter" id="enter-button">ENTER!</a>
+    <div class="enter-top">
+        <h1 class="invaders-title">Hug</h1>
+    </div>
+    <div class="enter-bottom">
+        <a class="enter" id="enter-button">Enter</a>
     </div>
 </div>
 
 
 <div id="select-color">
+    <h1 class="select-color">Select your color</h1>
     <div id="color-container"></div>
 
     <div class="control">
         <div class="value">
             <div class="value-container" id="drag-bar-container" style="background-color: rgb(250, 250, 250);">
                 <div class="drag-bar" id="drag-bar"></div>
-
             </div>
         </div>
     </div>
 
 
-    <h1 class="select-color">Select your color</h1>
-
-    <button type="button" class="send-color" id="send-color" disabled>next page</button>
+    <div class="select-bottom drag-bar">
+        <button type="button" class="send-color" id="send-color" disabled>next</button>
+    </div>
 </div>
 
 <div id="verify-color">
-    <h1 class="verify-color"><span class="verify-color-text">Are you sure?</span></h1>
+    <div class="verify-color"><h2 class="are-you-sure">Are<br/>you<br/>sure?</h2></div>
 
     <div class="verify-button-holder">
         <button type="button" class="verify-color-choice" id="verify-yes">
             <span class="verify-color-text">YES!</span>
         </button>
+        <br/>
         <button type="button" class="verify-color-choice" id="verify-no">
             <span class="verify-color-text">NO!</span>
         </button>
@@ -56,23 +78,49 @@
 </div>
 
 <div id="sending-color">
-    <h2 class="show-color"><span class="verify-color-text">Sending your color..</span> </h2>
+    <h2 class="show-color"><span class="verify-color-text">Sending your color..</span></h2>
 </div>
 
 <div id="show-color">
-    <h2 class="show-color"><span class="verify-color-text">This is your color</span> </h2>
-    <h2 class="show-color"><span class="verify-color-text">Your light will be displayed at</span> <span id="color-date" class="verify-color-text"></span></h2>
-    <h3 class="credits"><span class="verify-color-text">Artist: Marco Amedani<br/>Software Developer: Dan Fredell</span> </h3 >
+    <div class="show-color"><h2 class="verify-color-text">This is your color</h2></div>
+    <div class="show-color"><h2 class="verify-color-text">Your light will be displayed at <span id="color-date"></span>
+    </h2></div>
+    <div class="credits"><h3 class="verify-color-text">Artist: Marco Amedani<br/>Software Developer: Dan Fredell</h3>
+    </div>
 </div>
 
 <div id="show-color-error">
-    <h2 class="show-color"><span class="verify-color-text">There was an error submitting please try again</span> </h2>
-    <h3 class="credits"><span class="verify-color-text">Artist: Marco Amedani<br/>Software Developer: Dan Fredell</span> </h3 >
+    <div class="show-color"><h2 class="verify-color-text">There was an error submitting please try again</h2></div>
+    <div class="credits"><h3 class="verify-color-text">Artist: Marco Amedani<br/>Software Developer: Dan Fredell</h3>
+    </div>
 </div>
 
 <div id="show-cooldown">
-    <h2 class="show-color"><span class="verify-color-text">The lights are too hot. They will be cooled off at </span>
-        <span id="submit-cooldown" class="verify-color-text"></span></h2>
+    <div class="show-color"><h2 class="verify-color-text">The lights are too hot. They will be cooled off at <span
+            id="submit-cooldown"></span>
+    </h2></div>
+    <div class="show-color"><h2 class="verify-color-text">Take a screenshot of the next page and share with us on
+        Instagram and Facebook.</h2>
+    </div>
+    <div class="show-color"><h2 class="verify-color-text countdown-timer">5</h2>
+    </div>
+</div>
+
+
+<div id="show-social-media">
+
+
+    <div class="show-color"><h2 class="verify-color-text">Instagram <br/><i class="fab fa-instagram fa-3x"></i><br/>
+        #hug #collectcolorswithme
+    </h2></div>
+    <div class="show-color"><h2 class="verify-color-text">Facebook <br/><i class="fab fa-facebook-f fa-3x"></i>
+    </h2>
+        <!-- Your share button code -->
+        <div class="fb-share-button"
+             data-href="http://www.collectcolorswith.me/"
+             data-layout="button_count">
+        </div>
+    </div>
 </div>
 
 </body>
