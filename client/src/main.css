@@ -22,8 +22,27 @@ body {
     /*overflow: hidden; !* Don't scroll page  when selecting edge color*!*/
 }
 
-#enter-screen {
+.base-screen {
+    top: 0;
+    left: 0;
+    right: 0;
     height: 100%;
+    position: absolute;
+    display: none;
+}
+
+
+h1 {
+    margin-block-start: 0;
+}
+h2 {
+    margin-block-start: 0;
+}
+h3 {
+    margin-block-start: 0;
+}
+#enter-screen {
+    display: block;
 }
 
 div.enter-top {
@@ -51,7 +70,6 @@ a.enter {
     color: white;
     font-size: 2em;
     padding-top: 15vh;
-    height: 100%;
 }
 
 @keyframes blinkingText{
@@ -149,21 +167,22 @@ a.enter {
     padding: 1em;
 }
 
-#select-color {
-    display: none;
+#select-color-screen {
+
     text-align: center;
-    height: 100%;
 }
 
-div#select-color .control {
+div#select-color-screen .control {
     padding-bottom: 2em;
+    display: none;
 }
 
 div.select-bottom {
     width: 100%;
-    height: auto;
+    height: 30vh;
     background-color: gray;
     padding: 6% 0 20%;
+    margin: 3em 0;
 }
 
 button.send-color {
@@ -184,14 +203,11 @@ button.send-color:disabled {
 }
 
 
-#verify-color {
-    display: none;
-    height: 100%;
+#verify-color-screen {
+
 }
-div#sending-color {
-    display: none;
-    height: 100%;
-    padding-top: 1em;
+div#sending-color-screen {
+
 }
 
 .verify-color-text {
@@ -200,10 +216,11 @@ div#sending-color {
     color: gray;
     background-color: white;
     text-align: center;
+    margin: 1em 0 1em 0;
 }
 
 h2.verify-color-text {
-    font-size: 2em;
+    font-size: 1.5em;
 }
 
 h3.verify-color-text {
@@ -240,29 +257,23 @@ button.verify-color-choice {
     border-radius: 0;
     background-color: white;
     color: gray;
-    text-shadow: 2px 2px #000;
 }
 
 div.verify-button-holder {
     text-align: center;
 }
 
-div#show-color {
-    display: none;
-    height: 100%;
-    padding-top: 1em;
+div#show-color-screen {
+
 }
-div#show-color-error {
-    display: none;
-    height: 100%;
+div#show-color-error-screen {
+
 }
 
-div#show-cooldown {
-    display: none;
-    height: 100%;
-    padding-top: 1em;
+div#show-cooldown-screen {
+
 }
-div#show-cooldown h2.show-color {
+div#show-cooldown-screen h2.show-color {
     position: absolute;
     top: 30%;
     padding: 0 1em 0 1em;
@@ -285,8 +296,15 @@ h2.timer {
     text-shadow: 2px 2px #000;
 }
 
-#show-social-media {
-    height: 100%;
-    padding-top: 1em;
-    display: none;
+#show-social-media-screen {
+
+}
+
+.this-is-your-color {
+    height: 5em;
+    line-height: 5em;
+}
+
+.take-screenshot {
+    height: 5em;
 }

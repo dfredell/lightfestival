@@ -128,20 +128,17 @@ function submitColor() {
     var cssColor = getCssColor(color);
     window.console.log("Verify color" + JSON.stringify(color));
     // window.location.replace('verify?color=' + color.r +"");
-    $("#select-color").hide();
-    $("#verify-color").show();
-    $("#verify-color").css("background-color", cssColor);
-    // $(".verify-color-text,p.timer").css("color", invert(color));
-    $("#show-color").css("background-color", cssColor);
-    $("#show-color-error").css("background-color", cssColor);
+    $(".base-screen").hide();
+    $("#verify-color-screen").show();
+    $(".base-screen").css("background-color", cssColor);
 }
 
 function setupEnter() {
     $('#enter-button').on('click', function () {
         let cooldown = checkCooldown();
         if (cooldown < new Date().getTime()) {
-            $('#enter-screen').hide();
-            $('#select-color').show();
+            $(".base-screen").hide();
+            $('#select-color-screen').show();
             $("p.timer").show();
             $("p.timer").css('color', 'white');
             setupPicker();
@@ -149,11 +146,11 @@ function setupEnter() {
             $('#submit-cooldown').html(cooldown.toLocaleTimeString());
             let oldColor = localStorage.getItem(hugSelectedColor);
             if (oldColor) {
-                $("#show-cooldown,#show-social-media").css("background-color", oldColor);
+                $("#show-cooldown-screen,#show-social-media-screen").css("background-color", oldColor);
             }
             countdownToSocialMedia();
-            $('#enter-screen').hide();
-            $('#show-cooldown').show();
+            $(".base-screen").hide();
+            $('#show-cooldown-screen').show();
         }
     });
 }
@@ -168,8 +165,8 @@ function setupVerify() {
 }
 
 function verifyNo() {
-    $("#select-color").show();
-    $("#verify-color").hide();
+    $(".base-screen").hide();
+    $("#select-color-screen").show();
     $("p.timer").css('color', 'white');
 }
 
@@ -200,13 +197,13 @@ function verifyYes() {
     var color = saturationRgbWhite();
     var cssColor = getCssColor(color);
     window.console.log("Submit color rgb  " + JSON.stringify(color));
-    $("#sending-color").css("background-color", cssColor);
-    $("#show-color").css("background-color", cssColor);
-    $("#show-color-error").css("background-color", cssColor);
+    $("#sending-color-screen").css("background-color", cssColor);
+    $("#show-color-screen").css("background-color", cssColor);
+    $("#show-color-error-screen").css("background-color", cssColor);
 
     // show sending... screen
-    $("#verify-color").hide();
-    $("#sending-color").show();
+    $(".base-screen").hide();
+    $("#sending-color-screen").show();
     $.ajax({
         url: '/submitColor',
         contentType: 'application/json',
@@ -214,19 +211,20 @@ function verifyYes() {
         json: 'json',
         data: JSON.stringify(color),
         success: function (msg) {
-            $("#sending-color").hide();
-            $("#show-color").show();
+            $(".base-screen").hide();
+            $("#show-color-screen").show();
             let date = new Date(msg.date);
-            $("#color-date").html(date.toLocaleString());
+            $(".color-date").html(date.toLocaleString());
             $("p.timer").hide();
             setCooldownCookie(new Date(msg.cooldown));
             localStorage.setItem(hugSelectedColor, cssColor);
+            countdownToScreenshot();
         },
         error: function (msg) {
-            $("#sending-color").hide();
-            $("#show-color").show();
+            $(".base-screen").hide();
+            $("#show-color-screen").show();
             $("p.timer").hide();
-            $("#color-date").html("ERROR");
+            $(".color-date").html("ERROR");
         }
     });
 }
@@ -258,8 +256,31 @@ function countdownToSocialMedia(){
     });
     timer.addEventListener('targetAchieved', function (e) {
         timer.stop();
-        $("#show-cooldown").hide();
-        $('#show-social-media').show();
+        $(".base-screen").hide();
+        $('#show-social-media-screen').show();
+    });
+}
+
+
+/**
+ * wait 7 sec then show screenshot page
+ */
+function countdownToScreenshot(){
+    // setup countdown
+    var timer = new Timer();
+    timer.start({countdown: true, startValues: {seconds: 7}});
+    var text =  timer.getTimeValues().seconds;
+    $(".countdown-timer").html(text);
+
+    timer.addEventListener('secondsUpdated', function (e) {
+        var text = timer.getTimeValues().seconds;
+        $(".countdown-timer").html(text);
+    });
+    timer.addEventListener('targetAchieved', function (e) {
+        timer.stop();
+        $(".base-screen").hide();
+        $('#show-screenshot-screen').show();
+        countdownToSocialMedia()
     });
 }
 

@@ -1,4 +1,5 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <script>if (typeof module === 'object') {
         window.module = module;
@@ -15,16 +16,17 @@
 
     <!-- You can use Open Graph tags to customize link previews.
     Learn more: https://developers.facebook.com/docs/sharing/webmasters -->
-    <meta property="og:url"           content="hhttp://www.collectcolorswith.me/" />
-    <meta property="og:type"          content="website" />
-    <meta property="og:title"         content="Hug" />
-    <meta property="og:description"   content="Hug light display" />
-    <meta property="og:image"         content="https://www.your-domain.com/path/image.jpg" />
+    <meta property="og:url" content="hhttp://www.collectcolorswith.me/"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:title" content="Hug"/>
+    <meta property="og:description" content="Hug light display"/>
+    <meta property="og:image" content="https://www.your-domain.com/path/image.jpg"/>
     <!-- Load Facebook SDK for JavaScript -->
-    <script>(function(d, s, id) {
+    <script>(function (d, s, id) {
         var js, fjs = d.getElementsByTagName(s)[0];
         if (d.getElementById(id)) return;
-        js = d.createElement(s); js.id = id;
+        js = d.createElement(s);
+        js.id = id;
         js.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.0";
         fjs.parentNode.insertBefore(js, fjs);
     }(document, 'script', 'facebook-jssdk'));</script>
@@ -35,7 +37,7 @@
     <title>Hug</title>
 </head>
 <body>
-<div id="enter-screen">
+<div id="enter-screen" class="base-screen">
     <div class="enter-top">
         <h1 class="invaders-title">Hug</h1>
     </div>
@@ -45,7 +47,7 @@
 </div>
 
 
-<div id="select-color">
+<div id="select-color-screen" class="base-screen">
     <h1 class="select-color">Select your color</h1>
     <div id="color-container"></div>
 
@@ -63,7 +65,7 @@
     </div>
 </div>
 
-<div id="verify-color">
+<div id="verify-color-screen" class="base-screen">
     <div class="verify-color"><h2 class="are-you-sure">Are<br/>you<br/>sure?</h2></div>
 
     <div class="verify-button-holder">
@@ -77,25 +79,30 @@
     </div>
 </div>
 
-<div id="sending-color">
-    <h2 class="show-color"><span class="verify-color-text">Sending your color..</span></h2>
+<div id="sending-color-screen" class="base-screen">
+    <h2 class="show-color verify-color-text">Sending your color..</h2>
 </div>
 
-<div id="show-color">
-    <div class="show-color"><h2 class="verify-color-text">This is your color</h2></div>
-    <div class="show-color"><h2 class="verify-color-text">Your light will be displayed at <span id="color-date"></span>
+<div id="show-color-screen" class="base-screen">
+    <div class="show-color"><h2 class="verify-color-text this-is-your-color">This is your color</h2></div>
+    <div class="show-color"><h2 class="verify-color-text">Your light will be displayed at <span
+            class="color-date"></span>
     </h2></div>
-    <div class="credits"><h3 class="verify-color-text">Artist: Marco Amedani<br/>Software Developer: Dan Fredell</h3>
+    <div class="show-color"><h2 class="verify-color-text countdown-timer">5</h2>
+        <div class="credits"><h3 class="verify-color-text">Artist: Marco Amedani<br/>Software Developer: Dan Fredell
+        </h3>
+        </div>
     </div>
 </div>
 
-<div id="show-color-error">
+<div id="show-color-error-screen" class="base-screen">
     <div class="show-color"><h2 class="verify-color-text">There was an error submitting please try again</h2></div>
-    <div class="credits"><h3 class="verify-color-text">Artist: Marco Amedani<br/>Software Developer: Dan Fredell</h3>
+    <div class="credits"><h3 class="verify-color-text">Artist: Marco Amedani<br/>Software Developer: Dan Fredell
+    </h3>
     </div>
 </div>
 
-<div id="show-cooldown">
+<div id="show-cooldown-screen" class="base-screen">
     <div class="show-color"><h2 class="verify-color-text">The lights are too hot. They will be cooled off at <span
             id="submit-cooldown"></span>
     </h2></div>
@@ -106,11 +113,28 @@
     </div>
 </div>
 
+<div id="show-screenshot-screen" class="base-screen">
 
-<div id="show-social-media">
+    <div class="show-color"><h2 class="verify-color-text take-screenshot">
+        Take a screenshot of the next page and share with us on Instagram and Facebook.</h2>
+    </div>
+
+    <div class="show-color"><h2 class="verify-color-text">Your light will be displayed at <span
+            class="color-date"></span>
+    </h2></div>
+    <div class="show-color"><h2 class="verify-color-text countdown-timer">5</h2>
+
+        <div class="credits"><h3 class="verify-color-text">Artist: Marco Amedani<br/>Software Developer: Dan Fredell
+        </h3>
+        </div>
+    </div>
+</div>
+
+<div id="show-social-media-screen" class="base-screen">
 
 
-    <div class="show-color"><h2 class="verify-color-text">Instagram <br/><i class="fab fa-instagram fa-3x"></i><br/>
+    <div class="show-color"><h2 class="verify-color-text">Instagram <br/><i
+            class="fab fa-instagram fa-3x"></i><br/>
         #hug #collectcolorswithme
     </h2></div>
     <div class="show-color"><h2 class="verify-color-text">Facebook <br/><i class="fab fa-facebook-f fa-3x"></i>
