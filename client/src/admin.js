@@ -29,6 +29,8 @@ function setupChannels(){
         $("#parkedchannels").val(msg.parkedchannels);
         $("#cooldown").val(msg.cooldown);
         $("#waittime").val(msg.waittime);
+        $("#starttime").val(msg.starttime);
+        $("#endtime").val(msg.endtime);
     });
 }
 

@@ -65,6 +65,9 @@ const server = http.createServer(function (req, res) {
     } else if (req.url.includes('/rgbchannels')) {
         submitRgbchannels(req, res);
         return;
+    } else if (req.url.includes('/timeframe')) {
+        getActiveTime(req, res);
+        return;
     } else if (req.url.includes('/panic')) {
         whiteDmx();
         res.write("Success");
@@ -260,6 +263,8 @@ function submitRgbchannels(req, res) {
         var settings = parse(body);
         settings.cooldown = parseInt(settings.cooldown);
         settings.waittime = parseInt(settings.waittime);
+        settings.starttime = parseInt(settings.starttime);
+        settings.endtime = parseInt(settings.endtime);
         // let changed = channelsChanged(settings);
         fs.writeFile("settings.json", JSON.stringify(settings), function () {
             // if(changed){
@@ -284,6 +289,19 @@ function currentRgbchannels(req, res) {
     res.end();
 }
 
+// get the settings file for the user page
+function getActiveTime(req, res) {
+    res.writeHead(200, {
+        'Content-Type': 'application/json',
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Pragma": "no-cache",
+        "Expires": 0,
+    });
+    var content = JSON.parse(fs.readFileSync("settings.json"));
+    let times = {"starttime":content.starttime,"endtime":content.endtime};
+    res.write(JSON.stringify(times));
+    res.end();
+}
 
 
 /**

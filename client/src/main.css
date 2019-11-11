@@ -308,3 +308,7 @@ h2.timer {
 .take-screenshot {
     height: 5em;
 }
+
+#show-timeframe-screen {
+    background-color: gray;
+}

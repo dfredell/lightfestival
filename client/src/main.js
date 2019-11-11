@@ -133,16 +133,28 @@ function submitColor() {
     $(".base-screen").css("background-color", cssColor);
 }
 
+function getTimeFrame() {
+    $.ajax({
+        url: '/timeframe',
+        contentType: 'application/json',
+        method: 'GET',
+        json: 'json',
+        async: false
+    }).done(function( msg ) {
+        timeFrame = msg;
+    });
+}
+let timeFrame;
+
 function setupEnter() {
+    getTimeFrame();
     $('#enter-button').on('click', function () {
         let cooldown = checkCooldown();
-        if (cooldown < new Date().getTime()) {
-            $(".base-screen").hide();
-            $('#select-color-screen').show();
-            $("p.timer").show();
-            $("p.timer").css('color', 'white');
-            setupPicker();
-        } else {
+        let nowTime = new Date().getHours()*100 + new Date().getMinutes();
+        let activeShow = timeFrame
+            && (timeFrame.starttime < nowTime
+                || timeFrame.endtime > nowTime);
+        if (cooldown >= new Date().getTime()) {
             $('#submit-cooldown').html(cooldown.toLocaleTimeString());
             let oldColor = localStorage.getItem(hugSelectedColor);
             if (oldColor) {
@@ -151,6 +163,17 @@ function setupEnter() {
             countdownToSocialMedia();
             $(".base-screen").hide();
             $('#show-cooldown-screen').show();
+        } else if (!activeShow) {
+            $('#time-from').html(timeFrame.starttime);
+            $('#time-to').html(timeFrame.endtime);
+            $(".base-screen").hide();
+            $('#show-timeframe-screen').show();
+        } else {
+            $(".base-screen").hide();
+            $('#select-color-screen').show();
+            $("p.timer").show();
+            $("p.timer").css('color', 'white');
+            setupPicker();
         }
     });
 }
