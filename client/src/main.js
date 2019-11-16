@@ -164,8 +164,8 @@ function setupEnter() {
             $(".base-screen").hide();
             $('#show-cooldown-screen').show();
         } else if (!activeShow) {
-            $('#time-from').html(timeFrame.starttime);
-            $('#time-to').html(timeFrame.endtime);
+            $('#time-from').html(formatTime(timeFrame.starttime));
+            $('#time-to').html(formatTime(timeFrame.endtime));
             $(".base-screen").hide();
             $('#show-timeframe-screen').show();
         } else {
@@ -176,6 +176,16 @@ function setupEnter() {
             setupPicker();
         }
     });
+}
+
+/**
+ *
+ * @param time 900
+ * @returns {string} 9:00
+ */
+function formatTime(time){
+    let a = time.toString();
+    return a.slice(0,a.length-2) + ":" + a.slice(a.length-2,a.length)
 }
 
 function setupSubmit() {
