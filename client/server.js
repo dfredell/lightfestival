@@ -68,6 +68,9 @@ const server = http.createServer(function (req, res) {
     } else if (req.url.includes('/timeframe')) {
         getActiveTime(req, res);
         return;
+    } else if (req.url.includes('/nextcolorset')) {
+        getNextColorSet(req, res);
+        return;
     } else if (req.url.includes('/panic')) {
         whiteDmx();
         res.write("Success");
@@ -94,7 +97,7 @@ const server = http.createServer(function (req, res) {
             return res.end("404 Not Found");
         }
         let ext = path.parse(filename).ext;
-        res.writeHead(200, {'Content-Type': mimeTypes[ext]})
+        res.writeHead(200, {'Content-Type': mimeTypes[ext]});
         res.write(data);
         return res.end();
     });
@@ -134,6 +137,29 @@ function submitColor(req, res) {
         fs.appendFile("colorSubmitted.log", new Date().toISOString() + "\t" + body + "\n", function () {
         });
     })
+}
+
+/**
+ * Returns the newest 5 colors for the user
+ */
+function getNextColorSet(body, res) {
+    let pastFive = [];
+    firebase.firestore()
+        .collection('lights')
+        .orderBy('date', 'desc')
+        .limit(5)
+        .get()
+        .then(result => {
+            result.forEach(doc => {
+               pastFive.push(doc.data())
+            });
+            res.writeHead(200, {'Content-Type': "application/json"});
+            res.write(JSON.stringify(pastFive));
+            res.end();
+        }, err => {
+            console.log(`Firebase load Encountered error: ${err}`);
+            console.log(JSON.stringify(err));
+        });
 }
 
 /**

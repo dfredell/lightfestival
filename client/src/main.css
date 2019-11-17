@@ -312,3 +312,40 @@ h2.timer {
 #show-timeframe-screen {
     background-color: gray;
 }
+
+
+#color-column-screen {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+.color-column {
+    writing-mode: vertical-lr;
+    transform: rotate(180deg);
+    height: 100%;
+    width: 100vh;
+    z-index: 100;
+    color: white;
+    text-shadow: 2px 2px #000;
+}
+
+.column-0 {
+    background-color: red;
+}
+
+.column-1 {
+    background-color: orange;
+}
+
+.column-2 {
+    background-color: yellow;
+}
+
+.column-3 {
+    background-color: green;
+}
+
+.column-4 {
+    background-color: blue;
+}

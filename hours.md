@@ -25,3 +25,4 @@
 2019-11-03 2h Transform to hug's white styling
 2019-11-09 1.5h Optimize styling. Set white block sizes.
 2019-11-10 1h add time boxing to submission  
+2019-11-17 2h add color columns

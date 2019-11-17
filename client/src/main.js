@@ -252,6 +252,7 @@ function verifyYes() {
             setCooldownCookie(new Date(msg.cooldown));
             localStorage.setItem(hugSelectedColor, cssColor);
             countdownToScreenshot();
+            setupPreviewColumns();
         },
         error: function (msg) {
             $(".base-screen").hide();
@@ -313,8 +314,51 @@ function countdownToScreenshot(){
         timer.stop();
         $(".base-screen").hide();
         $('#show-screenshot-screen').show();
+        countdownToColumns()
+    });
+}
+
+/**
+ * wait 7 sec then show screenshot page
+ */
+function countdownToColumns(){
+    // setup countdown
+    var timer = new Timer();
+    timer.start({countdown: true, startValues: {seconds: 7}});
+    var text =  timer.getTimeValues().seconds;
+    $(".countdown-timer").html(text);
+
+    timer.addEventListener('secondsUpdated', function (e) {
+        var text = timer.getTimeValues().seconds;
+        $(".countdown-timer").html(text);
+    });
+    timer.addEventListener('targetAchieved', function (e) {
+        timer.stop();
+        $(".base-screen").hide();
+        $('#show-color-column-screen').show();
         countdownToSocialMedia()
     });
+}
+
+
+/**
+ * Get the newest 5 colors from the server
+ * this is a preview of what the user will see
+ */
+function setupPreviewColumns(){
+    $.ajax({
+        url: '/nextcolorset',
+        contentType: 'application/json',
+        method: 'GET',
+        json: 'json',
+        success: function (msg) {
+            for(let i = 0; i<msg.length; i++){
+                $(".column-"+i).html(new Date(msg[i].date._seconds*1000).toLocaleString());
+                $(".column-"+i).css("background-color", getCssColor(JSON.parse(msg[i].color)));
+            }
+        }
+    });
+
 }
 
 
