@@ -109,13 +109,16 @@ server.listen(port, hostname, function () {
 
 // Basic function to validate credentials for example
 function check(name, pass) {
-    var valid = true;
-
-    // Simple method to prevent short-circut and use timing-safe compare
-    valid = name === 'marco' && valid;
-    valid = pass === 'Ar]PcR=Zt3P$G[M' && valid;
+    var users = JSON.parse(fs.readFileSync("passwd.json"));
+    let valid = false;
+    users.forEach(u => {
+        if(u.user===name && u.pass === pass) {
+            valid = true;
+        }
+    });
     return valid;
 }
+
 // accept a new color from the user
 function submitColor(req, res) {
     var channels = JSON.parse(fs.readFileSync("settings.json")).rgbchannels;

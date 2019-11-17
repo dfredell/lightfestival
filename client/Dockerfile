@@ -11,6 +11,7 @@ COPY src /home/node/app/src/
 COPY package.json /home/node/app/
 COPY server.js /home/node/app/
 COPY settings.json /home/node/app/
+COPY passwd.json /home/node/app/
 COPY lightfestival-firebase-adminsdk.json /home/node/app/
 
 CMD ["/usr/local/bin/node","server.js"]
