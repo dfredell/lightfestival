@@ -302,7 +302,7 @@ function countdownToSocialMedia(){
 function countdownToScreenshot(){
     // setup countdown
     var timer = new Timer();
-    timer.start({countdown: true, startValues: {seconds: 7}});
+    timer.start({countdown: true, startValues: {seconds: 5}});
     var text =  timer.getTimeValues().seconds;
     $(".countdown-timer").html(text);
 
@@ -324,7 +324,7 @@ function countdownToScreenshot(){
 function countdownToColumns(){
     // setup countdown
     var timer = new Timer();
-    timer.start({countdown: true, startValues: {seconds: 7}});
+    timer.start({countdown: true, startValues: {seconds: 10}});
     var text =  timer.getTimeValues().seconds;
     $(".countdown-timer").html(text);
 
