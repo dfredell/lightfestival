@@ -280,7 +280,7 @@ function setupPositionImage() {
 function countdownToSocialMedia(){
     // setup countdown
     var timer = new Timer();
-    timer.start({countdown: true, startValues: {seconds: 5}});
+    timer.start({countdown: true, startValues: {seconds: 10}});
     var text =  timer.getTimeValues().seconds;
     $(".countdown-timer").html(text);
 
@@ -324,7 +324,7 @@ function countdownToScreenshot(){
 function countdownToColumns(){
     // setup countdown
     var timer = new Timer();
-    timer.start({countdown: true, startValues: {seconds: 10}});
+    timer.start({countdown: true, startValues: {seconds: 5}});
     var text =  timer.getTimeValues().seconds;
     $(".countdown-timer").html(text);
 

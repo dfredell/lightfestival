@@ -26,3 +26,4 @@
 2019-11-09 1.5h Optimize styling. Set white block sizes.
 2019-11-10 1h add time boxing to submission  
 2019-11-17 2h add color columns
+2019-11-25 0.5h styling and timing fixes
