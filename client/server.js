@@ -121,8 +121,6 @@ function check(name, pass) {
 
 // accept a new color from the user
 function submitColor(req, res) {
-    var channels = JSON.parse(fs.readFileSync("settings.json")).rgbchannels;
-
     var body = '';
     req.on('data', function (data) {
         body += data;
@@ -134,7 +132,7 @@ function submitColor(req, res) {
 
         res.writeHead(200, {'Content-Type': 'application/json'});
         // add to queue
-        sendDataToDb(body,res);
+        sendDataToDb(body, req, res);
 
         // save log
         fs.appendFile("colorSubmitted.log", new Date().toISOString() + "\t" + body + "\n", function () {
@@ -170,10 +168,11 @@ function getNextColorSet(body, res) {
  * @param body
  * @returns {Promise<string>}
  */
-function sendDataToDb(body,res) {
+function sendDataToDb(body,req, res) {
     // Get the most future light time so we know when we can go next
     let farthestDateSec = 0;
     var settings = JSON.parse(fs.readFileSync("settings.json"));
+    let ip = req.connection.remoteAddress;
 
 
     let queryPromise = firebase.firestore()
@@ -212,6 +211,7 @@ function sendDataToDb(body,res) {
             .collection('lights')
             .add({
                 date: firebase.firestore.Timestamp.fromDate(farthestDate),
+                ip: ip,
                 color: body
             }, err => {
                 console.log(`Firebase Save Encountered error: ${err}`);
