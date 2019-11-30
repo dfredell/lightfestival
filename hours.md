@@ -27,3 +27,4 @@
 2019-11-10 1h add time boxing to submission  
 2019-11-17 2h add color columns
 2019-11-25 0.5h styling and timing fixes
+2019-11-30 1.5h add ip, fix pi grabbing too many colors

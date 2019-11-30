@@ -243,8 +243,9 @@ function startListeners() {
         .where("date", ">", new Date())
         .orderBy('date', 'desc')
         .onSnapshot(docSnapshot => {
-            console.log(`Received doc snapshot`);
-            docSnapshot.forEach(doc => {
+            docSnapshot.docChanges().forEach(change => {
+                let doc = change.doc;
+                console.log(`Received doc snapshot ` + change.type);
                 console.log(doc.id, '=>', doc.data());
                 processFirebaseDoc(doc);
             });
