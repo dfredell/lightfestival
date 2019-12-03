@@ -137,8 +137,6 @@ function shiftColor(nextColor, startingDmx) {
  * Do the calcs to populate incrementalDiff
  */
 function calcFade(){
-    let settings = JSON.parse(fs.readFileSync("settings.json"));
-
     numOfSteps = fadeStepsPerSec * 10;
     // numOfSteps = fadeStepsPerSec * settings.fadetime;
 
@@ -209,28 +207,27 @@ function whiteDmx() {
 function initDmx() {
 
     whiteDmx();
+    let settings = JSON.parse(fs.readFileSync("settings.json"));
+    // set all the running lights to next color
+    let fixtures = settings.rgbchannels;
 
-    // load the previous DMX values
-    readLastLines.read('colorOutput.log', 1)
-        .then((lines) => {
-                console.log(dmxOutput);
-                if (lines.length > 500) {
-                    dmxOutput = lines.split("\t")[1].split(",");
-                    console.log("Loaded DMX from file");
-                    let i = 0;
-                    while (i < dmxOutput.length) {
-                        dmxOutput[i] = parseInt(dmxOutput[i]);
-                        i++;
-                    }
-                    console.log(dmxOutput);
-                }
-            }
-        ).catch(function (err) {
-        console.log(err.message);
-        fs.appendFile("colorOutput.log", "", function () {
+    firebase.firestore()
+        .collection('lights')
+        .limit(fixtures.length)
+        .orderBy('date', 'desc')
+        .onSnapshot(docSnapshot => {
+            console.log(`Received doc snapshot`);
+            let fadeStepsPerSecOrg = fadeStepsPerSec;
+            docSnapshot.forEach(doc => {
+                console.log(doc.id, '=>', doc.data());
+                const color = JSON.parse(doc.data().color);
+                fadeStepsPerSec = .1;
+                shiftColor(color,dmxOutput);
+            });
+            fadeStepsPerSec = fadeStepsPerSecOrg;
+        }, err => {
+            console.log(`Firebase Encountered error: ${err}`);
         });
-    });
-
 }
 
 
