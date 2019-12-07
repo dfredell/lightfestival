@@ -172,7 +172,7 @@ function sendDataToDb(body,req, res) {
     // Get the most future light time so we know when we can go next
     let farthestDateSec = 0;
     var settings = JSON.parse(fs.readFileSync("settings.json"));
-    let ip = req.connection.remoteAddress;
+    let ip = req.headers["x-forward-for"];
 
 
     let queryPromise = firebase.firestore()
