@@ -20,6 +20,7 @@ let transitionFinishDmx = [];
 let numOfStepsLeft = 0;
 let numOfSteps = 100;
 let fadeStepsPerSec = 10;
+let haveCaughtUp = false;
 
 const mimeTypes = {
     '.html': 'text/html',
@@ -207,27 +208,6 @@ function whiteDmx() {
 function initDmx() {
 
     whiteDmx();
-    let settings = JSON.parse(fs.readFileSync("settings.json"));
-    // set all the running lights to next color
-    let fixtures = settings.rgbchannels;
-
-    firebase.firestore()
-        .collection('lights')
-        .limit(fixtures.length)
-        .orderBy('date', 'desc')
-        .onSnapshot(docSnapshot => {
-            console.log(`Received doc snapshot`);
-            let fadeStepsPerSecOrg = fadeStepsPerSec;
-            docSnapshot.forEach(doc => {
-                console.log(doc.id, '=>', doc.data());
-                const color = JSON.parse(doc.data().color);
-                fadeStepsPerSec = .1;
-                shiftColor(color,dmxOutput);
-            });
-            fadeStepsPerSec = fadeStepsPerSecOrg;
-        }, err => {
-            console.log(`Firebase Encountered error: ${err}`);
-        });
 }
 
 
@@ -235,16 +215,21 @@ function initDmx() {
  * Start the Firebase listener
  */
 function startListeners() {
+    let settings = JSON.parse(fs.readFileSync("settings.json"));
+    // set all the running lights to next color
+    let fixtures = settings.rgbchannels;
     firebase.firestore()
         .collection('lights')
-        .where("date", ">", new Date())
+        .limit(fixtures.length)
         .orderBy('date', 'desc')
         .onSnapshot(docSnapshot => {
             docSnapshot.docChanges().forEach(change => {
                 let doc = change.doc;
                 console.log(`Received doc snapshot ` + change.type);
-                console.log(doc.id, '=>', doc.data());
-                processFirebaseDoc(doc);
+                if (change.type === 'added') {
+                    console.log(doc.id, '=>', doc.data());
+                    processFirebaseDoc(doc);
+                }
             });
         }, err => {
             console.log(`Firebase Encountered error: ${err}`);
@@ -260,10 +245,16 @@ function processFirebaseDoc(doc) {
     const dateSec = doc.data().date._seconds;
     const color = doc.data().color;
     const epochNowSec = new Date().getTime() / 1000;
-    if (dateSec < epochNowSec) {
-        console.log("Not using old data from " + doc.id);
+    if (dateSec < epochNowSec && !haveCaughtUp) {
+        console.log("Old doc instant fade " + doc.id);
+        let fadeStepsPerSecOrg = fadeStepsPerSec;
+        fadeStepsPerSec = .1;
+        const color = JSON.parse(doc.data().color);
+        shiftColor(color, dmxOutput);
+        fadeStepsPerSec = fadeStepsPerSecOrg;
         return;
     }
+    haveCaughtUp = true;
     // schedule color change
     const secWait = (dateSec - epochNowSec) * 1000;
     setTimeout(runTransition, secWait, color);
@@ -274,7 +265,8 @@ sendRgbDmx();
 startListeners();
 
 //runTransition({r:10,g:30,b:60,w:90});
-//setTimeout(runTransition.bind(null, {r:20,g:40,b:70,w:100}), 11000);
+// setTimeout(runTransition.bind(null, '{"r":20,"g":40,"b":70}'), 3000);
+// setTimeout(runTransition.bind(null, '{"r":200,"g":40,"b":70}'), 50000);
 
 //
 // let db = firebase.firestore();

@@ -28,3 +28,6 @@
 2019-11-17 2h add color columns
 2019-11-25 0.5h styling and timing fixes
 2019-11-30 1.5h add ip, fix pi grabbing too many colors
+2019-12-01 2h setup dns
+2019-12-06 .5 fix dns
+2019-12-07 .5 fix double read
