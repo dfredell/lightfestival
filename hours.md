@@ -31,3 +31,4 @@
 2019-12-01 2h setup dns
 2019-12-06 .5 fix dns
 2019-12-07 .5 fix double read
+2020-01-11 1h db export

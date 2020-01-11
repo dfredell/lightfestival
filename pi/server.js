@@ -137,7 +137,7 @@ function shiftColor(nextColor, startingDmx) {
 /**
  * Do the calcs to populate incrementalDiff
  */
-function calcFade(){
+function calcFade() {
     numOfSteps = fadeStepsPerSec * 10;
     // numOfSteps = fadeStepsPerSec * settings.fadetime;
 
@@ -268,15 +268,40 @@ startListeners();
 // setTimeout(runTransition.bind(null, '{"r":20,"g":40,"b":70}'), 3000);
 // setTimeout(runTransition.bind(null, '{"r":200,"g":40,"b":70}'), 50000);
 
-//
-// let db = firebase.firestore();
-//
-// db.collection('lights').get()
-//     .then((snapshot) => {
-//         snapshot.forEach((doc) => {
-//             console.log(doc.id, '=>', doc.data());
-//         });
-//     })
-//     .catch((err) => {
-//         console.log('Error getting documents', err);
-//     });
+
+/**
+ * Export the firebase database to a csv
+ */
+function exportDb() {
+    const file = "colors.csv";
+    const header = "date,seconds,r,g,b,ip\n";
+    let db = firebase.firestore();
+    fs.writeFile(file, header, function () {
+    });
+    db.collection('lights')
+        .limit(3)
+        .orderBy('date', 'desc')
+        .get()
+        .then((snapshot) => {
+            snapshot.forEach((doc) => {
+                try {
+                    let data = doc.data();
+                    console.log(doc.id, '=>', data);
+                    const dateSec = data.date._seconds;
+                    const color = JSON.parse(data.color);
+                    const ip = data.ip;
+                    const dateString = (new Date(dateSec * 1000)).toISOString();
+                    const row = [dateString, dateSec, color.r, color.g, color.b, ip].join(',') + '\n';
+
+                    fs.appendFile(file, row, (err) => {
+                    });
+                } catch(e) {
+                    console.log("Issue parsing")
+                }
+            });
+        })
+        .catch((err) => {
+            console.log('Error getting documents', err);
+        });
+}
+// exportDb();
