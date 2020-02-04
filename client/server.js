@@ -172,7 +172,7 @@ function sendDataToDb(body,req, res) {
     // Get the most future light time so we know when we can go next
     let farthestDateSec = 0;
     var settings = JSON.parse(fs.readFileSync("settings.json"));
-    let ip = req.headers["x-forward-for"];
+//    let ip = req.headers["x-forward-for"];
 
 
     let queryPromise = firebase.firestore()
@@ -211,7 +211,7 @@ function sendDataToDb(body,req, res) {
             .collection('lights')
             .add({
                 date: firebase.firestore.Timestamp.fromDate(farthestDate),
-                ip: ip,
+                //ip: ip,
                 color: body
             }, err => {
                 console.log(`Firebase Save Encountered error: ${err}`);
