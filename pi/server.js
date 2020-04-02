@@ -4,6 +4,7 @@ const url = require('url');
 let requirejs = require('requirejs');
 let request = require('request');
 const readLastLines = require('read-last-lines');
+let settings = JSON.parse(fs.readFileSync("settings.json"));
 
 // Firebase
 let firebase = require('firebase-admin');
@@ -16,10 +17,15 @@ firebase.initializeApp({
 let dmxOutput = [];
 let incrementalDiff = [];
 let transitionFinishDmx = [];
+let incrementalDiffUp = [[]];
+let incrementalDiffDown = [[]];
+let colorOutput = [{}];
+let colorOutputNext = [{}];
 
 let numOfStepsLeft = 0;
-let numOfSteps = 100;
-let fadeStepsPerSec = 10;
+let numOfSteps = 200;
+let fadeStepsPerSec = 20;
+let waveFadeTotalSec = 10;
 let haveCaughtUp = false;
 
 const mimeTypes = {
@@ -60,7 +66,7 @@ function sendRgbDmx() {
 //        console.log(error,response);
         return;
     });
-    setTimeout(sendRgbDmx, 100);
+    setTimeout(sendRgbDmx, 50);
 }
 
 
@@ -72,9 +78,117 @@ function runTransition(nextColor) {
     console.log(`Fading to ${JSON.stringify(nextColor)}`);
 
     let startingDmx = dmxOutput.slice(0);
-    let startingDmx2 = dmxOutput.slice(0);
-    fullColor(nextColor, startingDmx);
-    setTimeout(shiftColor, 11000, nextColor, startingDmx2);
+    // let startingDmx2 = dmxOutput.slice(0);
+
+    calcWave(startingDmx, nextColor);
+    waveFade(0,nextColor);
+
+    //fullColor(nextColor, startingDmx);
+    //setTimeout(shiftColor, 3000, nextColor, startingDmx2);
+}
+
+/**
+ * make the math easy, just calc 100 steps
+ */
+function calcWave(startingDmx, nextColor) {
+
+    console.log(new Date() + " Calculating wave to " + nextColor);
+
+    let fixtures = settings.rgbchannels;
+
+    numOfSteps = 100;
+
+    // calculate the incremental values up
+    for (let f = 0; f < fixtures.length; f++) {
+        incrementalDiffUp[f] = {};
+        incrementalDiffUp[f].r = (nextColor.r - colorOutput[f].r) / numOfSteps;
+        incrementalDiffUp[f].g = (nextColor.g - colorOutput[f].g) / numOfSteps;
+        incrementalDiffUp[f].b = (nextColor.b - colorOutput[f].b) / numOfSteps;
+    }
+
+    // shift all the running lights down one fixture
+    colorOutputNext = JSON.parse(JSON.stringify(colorOutput));
+    colorOutputNext.push(nextColor);
+    colorOutputNext.shift();
+
+    // calc the incremental values to the next shift
+    for (let f = 0; f < fixtures.length; f++) {
+        incrementalDiffDown[f] = {};
+        incrementalDiffDown[f].r = (colorOutputNext[f].r - nextColor.r) / numOfSteps;
+        incrementalDiffDown[f].g = (colorOutputNext[f].g - nextColor.g) / numOfSteps;
+        incrementalDiffDown[f].b = (colorOutputNext[f].b - nextColor.b) / numOfSteps;
+    }
+}
+
+/**
+ *
+ * 3 sections of time for fade
+ * 1. fading up, each color is delayed 1/3 by for a total of 3 sec
+ * 2. static new color for 4 sec
+ * 3. fade out, 3 sec
+ *
+ * @param t time segment in fade
+ * @param nextColor new color to add
+ */
+function waveFade(t, nextColor){
+
+    // each color gets 1.5 sec to fade
+    let framesToFade = fadeStepsPerSec * 1.5;
+    // frames till we are done with phase one, 3sec
+    let phaseOneDone = fadeStepsPerSec * 3;
+    // how many method executions to put between starting the fade of the next color output
+    let timeToTail = ( phaseOneDone - framesToFade )/colorOutput.length;
+
+    // wait at phase two, full new color, for 4 sec
+    let phaseTwoDone = phaseOneDone + fadeStepsPerSec * 4;
+
+    // wait at phase two, full new color, for 4 sec
+    let phaseThreeDone = phaseTwoDone + fadeStepsPerSec * 3;
+
+    // fade up to the all the new color
+    for (let i = 0; i < colorOutput.length; i++) {
+        //delay the color fade start
+        if(timeToTail * i <= t && (framesToFade + timeToTail * i ) > t && t < phaseOneDone) {
+            colorOutput[i].r += incrementalDiffUp[i].r * 100 / framesToFade;
+            colorOutput[i].g += incrementalDiffUp[i].g * 100 / framesToFade;
+            colorOutput[i].b += incrementalDiffUp[i].b * 100 / framesToFade;
+        } else if (phaseOneDone < t &&  t < phaseTwoDone){
+            colorOutput[i].r = nextColor.r;
+            colorOutput[i].g = nextColor.g;
+            colorOutput[i].b = nextColor.b;
+        } else if(phaseTwoDone < t
+                    && (phaseTwoDone + timeToTail * i ) <= t
+                    && (phaseTwoDone + framesToFade + timeToTail * i ) > t
+                    && t < phaseThreeDone) {
+            colorOutput[i].r += incrementalDiffDown[i].r * 100 / framesToFade;
+            colorOutput[i].g += incrementalDiffDown[i].g * 100 / framesToFade;
+            colorOutput[i].b += incrementalDiffDown[i].b * 100 / framesToFade;
+        } else if (t >= phaseThreeDone) {
+            colorOutput = colorOutputNext;
+        }
+    }
+
+
+    if(t < fadeStepsPerSec * waveFadeTotalSec){
+        mapColorToOutput();
+        t = t+1;
+        setTimeout(waveFade,1000/fadeStepsPerSec,t,nextColor)
+    }
+}
+
+/**
+ * use settings.rgbfixtures to map colorOutput to dmxoutput
+ */
+function mapColorToOutput(){
+    let fixtureGroups = settings.rgbchannels;
+    for (let g = 0; g < fixtureGroups.length; g++) {
+        for (let i = 0; i < fixtureGroups[g].length; i++) {
+            dmxOutput[fixtureGroups[g][i] - 1] = Math.round(colorOutput[g].r);
+            dmxOutput[fixtureGroups[g][i] + 0] = Math.round(colorOutput[g].g);
+            dmxOutput[fixtureGroups[g][i] + 1] = Math.round(colorOutput[g].b);
+        }
+    }
+    // console.log(colorOutput);
 }
 
 /**
@@ -197,12 +311,20 @@ function whiteDmx() {
         dmxOutput[item - 1] = 255;
     }
     //set rgb ones to white
-    for (let value of settings.rgbchannels) {
-        dmxOutput[value - 1] = 255; //r
-        dmxOutput[value] = 255; //g
-        dmxOutput[value + 1] = 255; //b
-        dmxOutput[value + 2] = 255; //w
+    let fixtureGroups = settings.rgbchannels;
+    for (let g = 0; g < fixtureGroups.length; g++) {
+        colorOutput[g] = {};
+        colorOutput[g].r = 255; //r
+        colorOutput[g].g = 255; //g
+        colorOutput[g].b = 255; //b
     }
+    //set rgb ones to white
+    // for (let value of settings.rgbchannels) {
+    //     dmxOutput[value - 1] = 255; //r
+    //     dmxOutput[value] = 255; //g
+    //     dmxOutput[value + 1] = 255; //b
+    //     dmxOutput[value + 2] = 255; //w
+    // }
 }
 
 function initDmx() {
@@ -245,6 +367,7 @@ function processFirebaseDoc(doc) {
     const dateSec = doc.data().date._seconds;
     const color = doc.data().color;
     const epochNowSec = new Date().getTime() / 1000;
+    // first load the previous top X colors from the DB
     if (dateSec < epochNowSec && !haveCaughtUp) {
         console.log("Old doc instant fade " + doc.id);
         let fadeStepsPerSecOrg = fadeStepsPerSec;
@@ -263,9 +386,10 @@ function processFirebaseDoc(doc) {
 initDmx();
 sendRgbDmx();
 startListeners();
+mapColorToOutput();
 
-//runTransition({r:10,g:30,b:60,w:90});
-// setTimeout(runTransition.bind(null, '{"r":20,"g":40,"b":70}'), 3000);
+//runTransition('{"r":10,"g":30,"b":60}');
+//setTimeout(runTransition.bind(null, '{"r":20,"g":40,"b":70}'), 1000);
 // setTimeout(runTransition.bind(null, '{"r":200,"g":40,"b":70}'), 50000);
 
 

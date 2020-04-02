@@ -1,1 +1,20 @@
-{"rgbchannels":[1,10,22],"parkedchannels":[100,200]}
+{
+  "rgbchannels": [
+    [
+      1, 5
+    ],
+    [
+      10, 15
+    ],
+    [
+      20, 25
+    ],
+    [
+      30, 35
+    ]
+  ],
+  "parkedchannels": [
+    100,
+    200
+  ]
+}
