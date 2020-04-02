@@ -28,6 +28,8 @@ let numOfSteps = 200;
 let fadeStepsPerSec = 20;
 let waveFadeTotalSec = 10;
 let haveCaughtUp = false;
+let hugEnabled = true;
+let firestoreWatch = null;
 
 let cronJobs = [];
 
@@ -349,7 +351,10 @@ function startListeners() {
     let settings = JSON.parse(fs.readFileSync("settings.json"));
     // set all the running lights to next color
     let fixtures = settings.rgbchannels;
-    firebase.firestore()
+    if(firestoreWatch != null){
+        return;
+    }
+    firestoreWatch = firebase.firestore()
         .collection('lights')
         .limit(fixtures.length)
         .orderBy('date', 'desc')
@@ -357,7 +362,7 @@ function startListeners() {
             docSnapshot.docChanges().forEach(change => {
                 let doc = change.doc;
                 console.log(`Received doc snapshot ` + change.type);
-                if (change.type === 'added') {
+                if (change.type === 'added' && hugEnabled) {
                     console.log(doc.id, '=>', doc.data());
                     processFirebaseDoc(doc);
                 }
@@ -397,10 +402,12 @@ function processFirebaseDoc(doc) {
 let Handler={};
 
 Handler.startHug = function () {
+    hugEnabled=false;
     startListeners();
 };
 Handler.setDMX = function (dmxValues) {
     dmxOutput = dmxValues;
+    hugEnabled=false;
 };
 
 /**
