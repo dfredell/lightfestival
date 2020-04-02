@@ -402,7 +402,7 @@ function processFirebaseDoc(doc) {
 let Handler={};
 
 Handler.startHug = function () {
-    hugEnabled=false;
+    hugEnabled=true;
     startListeners();
 };
 Handler.setDMX = function (dmxValues) {
