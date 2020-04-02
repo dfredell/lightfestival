@@ -5,6 +5,7 @@ let requirejs = require('requirejs');
 let request = require('request');
 const readLastLines = require('read-last-lines');
 let settings = JSON.parse(fs.readFileSync("settings.json"));
+var CronJob = require('cron').CronJob;
 
 // Firebase
 let firebase = require('firebase-admin');
@@ -27,6 +28,8 @@ let numOfSteps = 200;
 let fadeStepsPerSec = 20;
 let waveFadeTotalSec = 10;
 let haveCaughtUp = false;
+
+let cronJobs = [];
 
 const mimeTypes = {
     '.html': 'text/html',
@@ -189,6 +192,12 @@ function mapColorToOutput(){
         }
     }
     // console.log(colorOutput);
+}
+
+function pushWaveColor(nextColor) {
+    colorOutput.shift();
+    colorOutput.push(nextColor);
+    mapColorToOutput();
 }
 
 /**
@@ -373,7 +382,8 @@ function processFirebaseDoc(doc) {
         let fadeStepsPerSecOrg = fadeStepsPerSec;
         fadeStepsPerSec = .1;
         const color = JSON.parse(doc.data().color);
-        shiftColor(color, dmxOutput);
+        // shiftColor(color, dmxOutput);
+        pushWaveColor(color);
         fadeStepsPerSec = fadeStepsPerSecOrg;
         return;
     }
@@ -383,10 +393,55 @@ function processFirebaseDoc(doc) {
     setTimeout(runTransition, secWait, color);
     console.log(`Scheduled fade for ${doc.id} to ${color} in ${secWait} ms`);
 }
+
+let Handler={};
+
+Handler.startHug = function () {
+    startListeners();
+};
+Handler.setDMX = function (dmxValues) {
+    dmxOutput = dmxValues;
+};
+
+/**
+ * start the cron jobs that are in the settings file
+ */
+function setupCrons() {
+    let schedules = settings.schedule;
+    let currentEvent = "startHug";
+    let currentDmx = [];
+    let latestDate = 0;
+
+    for (let f = 0; f < schedules.length; f++) {
+        let schedule = schedules[f];
+
+        var job = new CronJob('0 ' + schedule.time.minute + ' ' + schedule.time.hour + ' * * *', function () {
+            console.log('Calling Cron method ' + schedule.event);
+            Handler[schedule.event](schedule.dmx);
+        }, null, true, '');
+
+        job.start();
+
+        //find the farthest out job, that is the one that would have ran previously
+        for (let f = 0; f < cronJobs.length; f++) {
+            if(latestDate < job.nextDate()){
+                currentEvent = schedule.event;
+                currentDmx = schedule.dmx;
+                latestDate = job.nextDate();
+            }
+        }
+
+        cronJobs.push(job);
+    }
+
+    console.log('Starting with event ' + currentEvent);
+    Handler[currentEvent](currentDmx);
+}
+
 initDmx();
 sendRgbDmx();
-startListeners();
-mapColorToOutput();
+//startListeners();
+setupCrons();
 
 //runTransition('{"r":10,"g":30,"b":60}');
 //setTimeout(runTransition.bind(null, '{"r":20,"g":40,"b":70}'), 1000);

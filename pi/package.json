@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "basic-auth": "^2.0.1",
+    "cron": "^1.8.2",
     "firebase-admin": "^8.6.1",
     "querystring": "^0.2.0",
     "read-last-lines": "^1.7.1",

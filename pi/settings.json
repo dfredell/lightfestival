@@ -16,5 +16,30 @@
   "parkedchannels": [
     100,
     200
+  ],
+  "schedule": [
+    {
+      "time": {
+        "hour": 18,
+        "minute": 0
+      },
+      "event": "setDMX",
+      "dmx": [255,200,50]
+    },
+    {
+      "time": {
+        "hour": 22,
+        "minute": 0
+      },
+      "event": "startHug"
+    },
+    {
+      "time": {
+        "hour": 21,
+        "minute": 0
+      },
+      "event": "setDMX",
+      "dmx": [255,200,50]
+    }
   ]
 }
