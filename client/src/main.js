@@ -242,6 +242,8 @@ function verifyYes() {
         contentType: 'application/json',
         method: 'POST',
         json: 'json',
+        tryCount: 0,
+        retryLimit: 3,
         data: JSON.stringify(color),
         success: function (msg) {
             $(".base-screen").hide();
@@ -255,6 +257,12 @@ function verifyYes() {
             setupPreviewColumns();
         },
         error: function (msg) {
+            this.tryCount++;
+            if (this.tryCount <= this.retryLimit) {
+                //try again
+                $.ajax(this);
+                return;
+            }
             $(".base-screen").hide();
             $("#show-color-screen").show();
             $("p.timer").hide();

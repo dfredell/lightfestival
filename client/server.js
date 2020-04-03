@@ -1,4 +1,5 @@
 /*server.js*/
+'use strict';
 const http = require('http');
 const hostname = '0.0.0.0';
 const isDocker = require('is-docker');
@@ -19,10 +20,6 @@ var auth = require('basic-auth');
 // Firebase
 var firebase = require('firebase-admin');
 var serviceAccount = require("./lightfestival-firebase-adminsdk.json");
-firebase.initializeApp({
-    credential: firebase.credential.cert(serviceAccount),
-    databaseURL: "https://lightfestival.firebaseio.com"
-});
 
 const mimeTypes = {
     '.html': 'text/html',
@@ -139,6 +136,11 @@ function submitColor(req, res) {
         });
     })
 }
+
+firebase.initializeApp({
+    credential: firebase.credential.cert(serviceAccount),
+    databaseURL: "https://lightfestival.firebaseio.com"
+});
 
 /**
  * Returns the newest 5 colors for the user

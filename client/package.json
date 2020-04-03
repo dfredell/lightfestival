@@ -23,11 +23,11 @@
     "querystring": "^0.2.0",
     "read-last-lines": "^1.7.2",
     "request": "^2.88.2",
-    "requirejs": "^2.3.6",
-    "watchify": "^3.11.1"
+    "requirejs": "^2.3.6"
   },
   "start": "node server.js",
   "devDependencies": {
-    "concurrently": "^4.1.2"
+    "concurrently": "^4.1.2",
+    "watchify": "^3.11.1"
   }
 }

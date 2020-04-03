@@ -26,7 +26,7 @@ let colorOutputNext = [{}];
 let numOfStepsLeft = 0;
 let numOfSteps = 200;
 let fadeStepsPerSec = 20;
-let waveFadeTotalSec = 10;
+let waveFadeTotalSec = 9;
 let haveCaughtUp = false;
 let hugEnabled = true;
 let firestoreWatch = null;
@@ -93,11 +93,11 @@ function runTransition(nextColor) {
 }
 
 /**
- * make the math easy, just calc 100 steps
+ * make the math easy, just calc 100 steps, I will deal with lowering the steps per sec later on
  */
 function calcWave(startingDmx, nextColor) {
 
-    console.log(new Date() + " Calculating wave to " + nextColor);
+    console.log(new Date().toISOString() + " Calculating wave to " + JSON.stringify(nextColor));
 
     let fixtures = settings.rgbchannels;
 
@@ -129,7 +129,7 @@ function calcWave(startingDmx, nextColor) {
  *
  * 3 sections of time for fade
  * 1. fading up, each color is delayed 1/3 by for a total of 3 sec
- * 2. static new color for 4 sec
+ * 2. static new color for 3 sec
  * 3. fade out, 3 sec
  *
  * @param t time segment in fade
@@ -144,8 +144,8 @@ function waveFade(t, nextColor){
     // how many method executions to put between starting the fade of the next color output
     let timeToTail = ( phaseOneDone - framesToFade )/colorOutput.length;
 
-    // wait at phase two, full new color, for 4 sec
-    let phaseTwoDone = phaseOneDone + fadeStepsPerSec * 4;
+    // wait at phase two, full new color, for 3 sec
+    let phaseTwoDone = phaseOneDone + fadeStepsPerSec * 3;
 
     // wait at phase two, full new color, for 4 sec
     let phaseThreeDone = phaseTwoDone + fadeStepsPerSec * 3;
@@ -170,6 +170,9 @@ function waveFade(t, nextColor){
             colorOutput[i].b += incrementalDiffDown[i].b * 100 / framesToFade;
         } else if (t >= phaseThreeDone) {
             colorOutput = colorOutputNext;
+            if (i===0){
+                console.log(new Date().toISOString() + " wave finished to " + JSON.stringify(nextColor));
+            }
         }
     }
 

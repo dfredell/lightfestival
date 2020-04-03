@@ -11,6 +11,12 @@
     ],
     [
       30, 35
+    ],
+    [
+      40, 45
+    ],
+    [
+      50, 55
     ]
   ],
   "parkedchannels": [
@@ -28,7 +34,7 @@
     },
     {
       "time": {
-        "hour": 22,
+        "hour": 20,
         "minute": 0
       },
       "event": "startHug"
