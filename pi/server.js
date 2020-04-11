@@ -31,6 +31,10 @@ let haveCaughtUp = false;
 let hugEnabled = true;
 let firestoreWatch = null;
 
+const KEUN_RGB_GET = "https://www.arteamicalights.it/bulgari/display2.php";
+let keunEnabled = false;
+let keunPreviousColor = {};
+
 let cronJobs = [];
 
 const mimeTypes = {
@@ -402,15 +406,57 @@ function processFirebaseDoc(doc) {
     console.log(`Scheduled fade for ${doc.id} to ${color} in ${secWait} ms`);
 }
 
+
+/**
+ * Check keun for a new rgb color
+ */
+function fetchKeun() {
+
+    let clientServerOptions = {
+        uri: KEUN_RGB_GET,
+        method: 'GET'
+    };
+    // GET the next color
+    request(clientServerOptions, function (error, response) {
+        if(error){
+            console.log("Error fetching color " + error);
+        }
+        let color = response.body.split(",");
+        let nextColor = {r:parseInt(color[0]),g:parseInt(color[1]),b:parseInt(color[2])};
+        // console.log("Checking for new keun color " + JSON.stringify(nextColor));
+
+        // if there is a change, fade to it
+        if (JSON.stringify(keunPreviousColor) !== JSON.stringify(nextColor)  ){
+            console.log("Fading to new keun color " + JSON.stringify(nextColor));
+            keunPreviousColor = nextColor;
+            runTransition(JSON.stringify(nextColor));
+        }
+
+        if (keunEnabled){
+            setTimeout(fetchKeun, 10000);
+        }
+    });
+
+}
+
+
+///////////////////// STARTUP /////////////////////
 let Handler={};
 
 Handler.startHug = function () {
     hugEnabled=true;
+    keunEnabled=false;
     startListeners();
 };
 Handler.setDMX = function (dmxValues) {
     dmxOutput = dmxValues;
     hugEnabled=false;
+    keunEnabled=false;
+};
+Handler.startKeun = function () {
+    keunEnabled=true;
+    hugEnabled=false;
+    fetchKeun();
 };
 
 /**
@@ -452,6 +498,8 @@ initDmx();
 sendRgbDmx();
 //startListeners();
 setupCrons();
+// keunEnabled=true;
+// fetchKeun();
 
 //runTransition('{"r":10,"g":30,"b":60}');
 //setTimeout(runTransition.bind(null, '{"r":20,"g":40,"b":70}'), 1000);
