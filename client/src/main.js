@@ -273,6 +273,9 @@ function verifyYes() {
             // set when the user can submit again
             setCooldownCookie(new Date(new Date().getMinutes() + cooldown));
             localStorage.setItem(hugSelectedColor, cssColor);
+
+            countdownToColumns();
+            setupPreviewColumns();
         },
         error: function (msg) {
             window.console.log("Error sending color " + JSON.stringify(msg));
@@ -286,6 +289,10 @@ function verifyYes() {
             $("#show-color-screen").show();
             $("p.timer").hide();
             $(".color-date").html("ERROR");
+
+
+            countdownToColumns();
+            setupPreviewColumns();
         }
     });
 }
@@ -374,15 +381,19 @@ function countdownToColumns(){
  */
 function setupPreviewColumns(){
     $.ajax({
-        url: '/nextcolorset',
-        contentType: 'application/json',
+        url: 'https://www.arteamicalights.it/bulgari/display3.php',
         method: 'GET',
-        json: 'json',
-        success: function (msg) {
-            for(let i = 0; i<msg.length; i++){
-                $(".column-"+i).html(new Date(msg[i].date._seconds*1000).toLocaleString());
-                $(".column-"+i).css("background-color", getCssColor(JSON.parse(msg[i].color)));
+        crossDomain : true,
+        success: function (csv) {
+            let msg = csv.split(',');
+            for(let i = 0; i<msg.length; i=i+3){
+                // $(".column-"+i).html(new Date(msg[i].date._seconds*1000).toLocaleString());
+                $(".column-"+i/3).css("background-color", "rgb("+msg[i]+","+msg[i+1]+","+msg[i+2]+")");
             }
+        },
+        error: function (msg) {
+            window.console.log("Error reading previous colors " + JSON.stringify(msg));
+
         }
     });
 
