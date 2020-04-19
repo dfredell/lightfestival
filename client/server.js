@@ -343,7 +343,7 @@ function whiteDmx() {
 
 
     //fill array with 0s
-    dmxOutput = new Array(512).fill(0);
+    let dmxOutput = new Array(512).fill(0);
 
     //setup parked channels
     for (let item of settings.parkedchannels) {

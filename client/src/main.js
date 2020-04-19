@@ -3,12 +3,19 @@ var Timer = require('easytimer.js').Timer;
 var $ = require('jquery');
 window.jquery = $;
 const invert = require('invert-color');
-require("./admin.js");
+var md5 = require('md5');
+
 var draggable;
 var picker;
 var white = 0;
 let hugCooldown = "hug-cooldown";
 let hugSelectedColor = "hug-selected-color";
+// Time window when the user can submit new colors
+// time is in 24h clock to the user's browser
+let timeFrame = {"starttime":701,"endtime":700};
+// The time the user has to wait between being able
+// to submit new colors in minutes
+let cooldown = 5;
 
 $(document).ready(function () {
     draggable = require("draggable");
@@ -144,10 +151,9 @@ function getTimeFrame() {
         timeFrame = msg;
     });
 }
-let timeFrame;
 
 function setupEnter() {
-    getTimeFrame();
+    // getTimeFrame();
     $('#enter-button').on('click', function () {
         let cooldown = checkCooldown();
         let nowTime = new Date().getHours()*100 + new Date().getMinutes();
@@ -223,7 +229,7 @@ function checkCooldown() {
 }
 
 /**
- * User submits their color choice
+ * submit rgb color to the Keun server
  */
 function verifyYes() {
     // var color = picker.getColor(true);
@@ -237,26 +243,39 @@ function verifyYes() {
     // show sending... screen
     $(".base-screen").hide();
     $("#sending-color-screen").show();
+
+
+    let url = calcKurnUrl(color.r + "," + color.g + "," + color.b);
+    window.console.log("Submitting to url " + url);
+
     $.ajax({
-        url: '/submitColor',
-        contentType: 'application/json',
+        url: url,
         method: 'POST',
-        json: 'json',
+        crossDomain : true,
+        dataType: 'json',
+        scriptAttrs: 'crossorigin',
         tryCount: 0,
-        retryLimit: 3,
-        data: JSON.stringify(color),
-        success: function (msg) {
+        retryLimit: 0,
+        xhrFields: {
+            withCredentials: true
+        },
+        header: {
+          origin: "hug.collectcolorswith.me"
+        },
+        success: function () {
             $(".base-screen").hide();
             $("#show-color-screen").show();
-            let date = new Date(msg.date);
-            $(".color-date").html(date.toLocaleString());
+
+            // let date = new Date(msg.date);
+            // $(".color-date").html(date.toLocaleString());
             $("p.timer").hide();
-            setCooldownCookie(new Date(msg.cooldown));
+
+            // set when the user can submit again
+            setCooldownCookie(new Date(new Date().getMinutes() + cooldown));
             localStorage.setItem(hugSelectedColor, cssColor);
-            countdownToScreenshot();
-            setupPreviewColumns();
         },
         error: function (msg) {
+            window.console.log("Error sending color " + JSON.stringify(msg));
             this.tryCount++;
             if (this.tryCount <= this.retryLimit) {
                 //try again
@@ -419,6 +438,19 @@ function getDragPercent() {
     cachePerc = perc;
     return perc;
 }
+
+/**
+ * calc kurn data packet
+ */
+function calcKurnUrl(color) {
+
+    let secretKey = "123456789";
+    let nameapp ="CR";
+    let hash = md5(nameapp + color + secretKey);
+
+    return "https://www.arteamicalights.it/bulgari/addscore.php?ID=33&NOME=CR&SCORE=" + color + "&hash=" + hash;
+}
+
 
 /**
  * https://stackoverflow.com/questions/40312216/converting-rgb-to-rgbw/40318604#40318604
