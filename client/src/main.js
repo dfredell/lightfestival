@@ -280,7 +280,7 @@ function verifyYes() {
             $(".base-screen").hide();
             $("#show-color-screen").show();
             $("p.timer").hide();
-            $(".color-date").html("ERROR<br/>Please refresh and try again");
+            $("#show-color-screen .countdown-timer").html("ERROR<br/>Please refresh and try again");
         }
     });
 }
