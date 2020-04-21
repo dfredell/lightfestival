@@ -252,16 +252,8 @@ function verifyYes() {
         url: url,
         method: 'POST',
         crossDomain : true,
-        dataType: 'json',
-        scriptAttrs: 'crossorigin',
         tryCount: 0,
         retryLimit: 0,
-        xhrFields: {
-            withCredentials: true
-        },
-        header: {
-          origin: "hug.collectcolorswith.me"
-        },
         success: function () {
             $(".base-screen").hide();
             $("#show-color-screen").show();
@@ -288,11 +280,7 @@ function verifyYes() {
             $(".base-screen").hide();
             $("#show-color-screen").show();
             $("p.timer").hide();
-            $(".color-date").html("ERROR");
-
-
-            countdownToColumns();
-            setupPreviewColumns();
+            $(".color-date").html("ERROR<br/>Please refresh and try again");
         }
     });
 }
@@ -387,7 +375,7 @@ function setupPreviewColumns(){
         success: function (csv) {
             let msg = csv.split(',');
             for(let i = 0; i<msg.length; i=i+3){
-                // $(".column-"+i).html(new Date(msg[i].date._seconds*1000).toLocaleString());
+                $(".column-"+i/3).html("");//new Date(msg[i].date._seconds*1000).toLocaleString());
                 $(".column-"+i/3).css("background-color", "rgb("+msg[i]+","+msg[i+1]+","+msg[i+2]+")");
             }
         },
