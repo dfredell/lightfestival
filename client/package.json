@@ -19,7 +19,7 @@
     "firebase-admin": "^8.10.0",
     "invert-color": "^2.0.0",
     "is-docker": "^2.0.0",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "md5": "^2.2.1",
     "querystring": "^0.2.0",
     "read-last-lines": "^1.7.2",
