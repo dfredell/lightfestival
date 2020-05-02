@@ -267,7 +267,7 @@ function verifyYes() {
             localStorage.setItem(hugSelectedColor, cssColor);
 
             countdownToColumns();
-            setupPreviewColumns();
+            setTimeout(setupPreviewColumns, 1500);
         },
         error: function (msg) {
             window.console.log("Error sending color " + JSON.stringify(msg));

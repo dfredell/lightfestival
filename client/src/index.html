@@ -6,11 +6,11 @@
         module = undefined;
     }</script>
 
-    <link rel="stylesheet" href="codemirror-colorpicker.css">
-    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="https://storage.cloud.google.com/hugforus.collectcolorswith.me/codemirror-colorpicker.css">
+    <link rel="stylesheet" href="https://storage.cloud.google.com/hugforus.collectcolorswith.me/main.css">
     <script src="https://kit.fontawesome.com/2dbc29f831.js" crossorigin="anonymous"></script>
 
-    <script src="bundle.js"></script>
+    <script src="https://storage.cloud.google.com/hugforus.collectcolorswith.me/bundle.js"></script>
     <!--    No zoom on mobile -->
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'/>
 
@@ -34,12 +34,12 @@
 
     <!-- Insert this line after script imports -->
     <script>if (window.module) module = window.module;</script>
-    <title>Hug</title>
+    <title>HugForUs</title>
 </head>
 <body>
 <div id="enter-screen" class="base-screen">
     <div class="enter-top">
-        <h1 class="invaders-title">Hug</h1>
+            <img src="https://storage.cloud.google.com/hugforus.collectcolorswith.me/logoHFU.png" title="HugForUs" class="hug-title-logo"/>
     </div>
     <div class="enter-bottom">
         <a class="enter" id="enter-button">Enter</a>
@@ -85,27 +85,31 @@
 
 <div id="show-color-screen" class="base-screen">
     <div class="show-color"><h2 class="verify-color-text this-is-your-color">This is your color</h2></div>
-<!--    <div class="show-color"><h2 class="verify-color-text">Your light will be displayed at <span-->
-<!--            class="color-date"></span>-->
-<!--    </h2></div>-->
+    <!--    <div class="show-color"><h2 class="verify-color-text">Your light will be displayed at <span-->
+    <!--            class="color-date"></span>-->
+    <!--    </h2></div>-->
     <div class="show-color">
         <h2 class="verify-color-text countdown-timer">5</h2>
-        <div class="credits"><h3 class="verify-color-text">Artist: Marco Amedani<br/>Software Developer: Dan Fredell
-        </h3>
+        <div class="credits">
+            <h3 class="verify-color-text">Artist: Marco Amedani<br>Software Developer: Dan Fredell, Keun Kindred</h3>
         </div>
     </div>
 </div>
 
 <div id="show-color-error-screen" class="base-screen">
     <div class="show-color"><h2 class="verify-color-text">There was an error submitting please try again</h2></div>
-    <div class="credits"><h3 class="verify-color-text">Artist: Marco Amedani<br/>Software Developer: Dan Fredell
+    <div class="credits">
+<h3 class="verify-color-text">Artist: Marco Amedani<br>Software Developer: Dan Fredell, Keun Kindred</h3>
+
+<h3 class="verify-color-text">
     </h3>
     </div>
 </div>
 
 <div id="show-timeframe-screen" class="base-screen">
     <div class="show-color">
-        <h2 class="verify-color-text">Hug will be on from <span id="time-from"></span> to <span id="time-to"></span>, please try later</h2>
+        <h2 class="verify-color-text">Hug will be on from <span id="time-from"></span> to <span id="time-to"></span>,
+            please try later</h2>
     </div>
 </div>
 
@@ -131,7 +135,7 @@
     </h2></div>
     <div class="show-color"><h2 class="verify-color-text countdown-timer">5</h2>
 
-        <div class="credits"><h3 class="verify-color-text">Artist: Marco Amedani<br/>Software Developer: Dan Fredell
+        <div class="credits"><h3 class="verify-color-text">Artist: Marco Amedani<br>Software Developer: Dan Fredell, Keun Kindred 
         </h3>
         </div>
     </div>
@@ -154,14 +158,23 @@
 <div id="show-social-media-screen" class="base-screen">
 
 
-    <div class="show-color"><h2 class="verify-color-text">Instagram <br/><i
-            class="fab fa-instagram fa-3x"></i><br/>
-        #hug #collectcolorswithme
+    <div class="show-color"><h2 class="verify-color-text">Instagram <br>
+        <a href="https://www.instagram.com/hugforus/">
+            <i class="fab fa-instagram fa-3x" aria-hidden="true"></i>
+            <br>
+            #hugforus
+        </a>
     </h2></div>
     <div class="show-color">
-        <h2 class="verify-color-text">Facebook <br/>
-            <i class="fab fa-facebook-f fa-3x"></i><br/>
-        #collectcolorswithme
+        <h2 class="verify-color-text">Facebook
+            <br>
+            <a href="https://www.facebook.com/HugForUs/">
+                <i class="fab fa-facebook-f fa-3x" aria-hidden="true"></i>
+                <br>
+                #hugforus
+            </a>
+        </h2>
+    </div>
 </div>
 
 </body>
