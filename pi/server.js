@@ -155,7 +155,7 @@ function waveFade(t, nextColor){
     let phaseThreeDone = phaseTwoDone + fadeStepsPerSec * 3;
 
     // fade up to the all the new color
-    for (let i = 0; i < colorOutput.length; i++) {
+    for (let i = 0; i < colorOutput.length && i < incrementalDiffUp.length; i++) {
         //delay the color fade start
         if(timeToTail * i <= t && (framesToFade + timeToTail * i ) > t && t < phaseOneDone) {
             colorOutput[i].r += incrementalDiffUp[i].r * 100 / framesToFade;
@@ -176,6 +176,10 @@ function waveFade(t, nextColor){
             colorOutput = colorOutputNext;
             if (i===0){
                 console.log(new Date().toISOString() + " wave finished to " + JSON.stringify(nextColor));
+
+                // save log
+                fs.appendFile("colorOutput.log", new Date().toISOString() + "\t" + JSON.stringify(colorOutput) + "\n", function () {
+                });
             }
         }
     }
@@ -348,6 +352,19 @@ function whiteDmx() {
 function initDmx() {
 
     whiteDmx();
+
+    // load the previous DMX values
+    readLastLines.read('colorOutput.log', 1)
+        .then((lines) => {
+                if (lines.length > 50) {
+                    console.log("Loaded DMX from file");
+                    colorOutput=JSON.parse(lines.split("\t")[1]);;
+                    console.log(colorOutput);
+                    keunPreviousColor = colorOutput[colorOutput.length - 1];
+                }
+                mapColorToOutput();
+            }
+        );
 }
 
 
