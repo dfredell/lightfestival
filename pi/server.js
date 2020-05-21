@@ -358,8 +358,10 @@ function initDmx() {
         .then((lines) => {
                 if (lines.length > 50) {
                     console.log("Loaded DMX from file");
-                    colorOutput=JSON.parse(lines.split("\t")[1]);;
-                    console.log(colorOutput);
+                    previousColors = JSON.parse(lines.split("\t")[1]);;
+                    for (let g = 0; g < previousColors.length; g++) {
+                        colorOutput[g] = previousColors[g];
+                    }
                     keunPreviousColor = colorOutput[colorOutput.length - 1];
                 }
                 mapColorToOutput();
@@ -471,8 +473,8 @@ Handler.setDMX = function (dmxValues) {
     keunEnabled=false;
 };
 Handler.startKeun = function () {
-    keunEnabled=true;
-    hugEnabled=false;
+  keunEnabled=true;
+  hugEnabled=false;
     fetchKeun();
 };
 
