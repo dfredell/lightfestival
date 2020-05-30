@@ -361,7 +361,37 @@ function countdownToColumns(){
         countdownToSocialMedia()
     });
 }
+var sendcolor;
+function sendfac(csv) {
+	//KEUN ADD CODE FOR F4C
+	let secretKey = "123456789";
+	let nameapp = "F4C";
+	let hash = md5(nameapp + sendcolor + "," + csv + secretKey);
 
+	let url = "https://www.arteamicalights.it/bulgari/addscore.php?ID=34&NOME=" + nameapp + "&SCORE=" + sendcolor + "," + csv + "&hash=" + hash;
+
+	$.ajax({
+		url: url,
+		method: 'POST',
+		crossDomain: true,
+		tryCount: 0,
+		retryLimit: 0,
+		success: function () {
+		},
+		error: function (msg) {
+			window.console.log("Error sending color " + JSON.stringify(msg));
+			this.tryCount++;
+			if (this.tryCount <= this.retryLimit) {
+				//try again
+				$.ajax(this);
+				return;
+			}
+
+		}
+	});
+	//KEUN ADDED CODE FOR F4C
+
+}
 
 /**
  * Get the newest 5 colors from the server
@@ -373,11 +403,23 @@ function setupPreviewColumns(){
         method: 'GET',
         crossDomain : true,
         success: function (csv) {
-            let msg = csv.split(',');
-            for(let i = 0; i<msg.length; i=i+3){
-                $(".column-"+i/3).html("");//new Date(msg[i].date._seconds*1000).toLocaleString());
-                $(".column-"+i/3).css("background-color", "rgb("+msg[i]+","+msg[i+1]+","+msg[i+2]+")");
-            }
+             let msg = csv.split(',');
+			//ADD KEUN
+             sendfac(csv);
+             $(".column-" + 0).html("");//new Date(msg[i].date._seconds*1000).toLocaleString());
+             $(".column-" + 0).css("background-color", "rgb(" + sendcolor + ")");
+			//ADDED KEUN
+
+             $(".column-"+1).html("");//new Date(msg[i].date._seconds*1000).toLocaleString());
+             $(".column-" +1).css("background-color", "rgb(" + msg[0] + "," + msg[1] + "," + msg[2] + ")");
+             $(".column-" + 2).html("");//new Date(msg[i].date._seconds*1000).toLocaleString());
+             $(".column-" + 2).css("background-color", "rgb(" + msg[3] + "," + msg[4] + "," + msg[5] + ")");
+             $(".column-" + 3).html("");//new Date(msg[i].date._seconds*1000).toLocaleString());
+             $(".column-" + 3).css("background-color", "rgb(" + msg[6] + "," + msg[7] + "," + msg[8] + ")");
+             $(".column-" + 4).html("");//new Date(msg[i].date._seconds*1000).toLocaleString());
+             $(".column-" + 4).css("background-color", "rgb(" + msg[9] + "," + msg[10] + "," + msg[11] + ")");
+
+
         },
         error: function (msg) {
             window.console.log("Error reading previous colors " + JSON.stringify(msg));
@@ -444,10 +486,12 @@ function getDragPercent() {
 function calcKurnUrl(color) {
 
     let secretKey = "123456789";
-    let nameapp ="CR";
+    let nameapp ="F4C";
     let hash = md5(nameapp + color + secretKey);
 
-    return "https://www.arteamicalights.it/bulgari/addscore.php?ID=33&NOME=CR&SCORE=" + color + "&hash=" + hash;
+
+
+    return "https://www.arteamicalights.it/bulgari/addscore.php?ID=33&NOME=" + nameapp + "&SCORE=" + color + "&hash=" + hash;
 }
 
 
