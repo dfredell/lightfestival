@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "basic-auth": "^2.0.1",
-    "codemirror": "^5.52.2",
+    "codemirror": "^5.58.2",
     "codemirror-colorpicker": "^1.9.66",
     "draggable": "^4.2.0",
     "easytimer.js": "^3.2.0",
